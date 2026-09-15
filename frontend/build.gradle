@@ -1,0 +1,19 @@
+plugins {
+    id 'base'
+}
+
+//tasks.register('npmInstall', Exec) {
+//    workingDir projectDir
+//    commandLine ((System.getProperty('os.name').toLowerCase().contains('windows')) ? 'npm.cmd' : 'npm'), 'install'
+//}
+//
+//tasks.register('build', Exec) {
+//    dependsOn 'npmInstall'
+//    workingDir projectDir
+//    commandLine ((System.getProperty('os.name').toLowerCase().contains('windows')) ? 'npm.cmd' : 'npm'), 'run', 'build'
+//}
+//
+//tasks.register('generateApi', Exec) {
+//    workingDir projectDir
+//    commandLine ((System.getProperty('os.name').toLowerCase().contains('windows')) ? 'npm.cmd' : 'npm'), 'run', 'generate-api'
+//}

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: part-manager-backend
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/part_manager}
+      auto-index-creation: true
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:mock-key}
+      chat:
+        options:
+          model: gpt-4o-mini
+
+  codec:
+    max-in-memory-size: 25MB
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
