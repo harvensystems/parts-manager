@@ -1,10 +1,10 @@
-package app.harven.partmanager.service;
+package app.harven.partsmanager.service;
 
-import app.harven.partmanager.domain.RecognitionStatus;
-import app.harven.partmanager.domain.RecognitionTask;
-import app.harven.partmanager.dto.RecognitionTaskResponseDto;
-import app.harven.partmanager.mapper.DtoMapper;
-import app.harven.partmanager.repository.RecognitionTaskRepository;
+import app.harven.partsmanager.domain.RecognitionStatus;
+import app.harven.partsmanager.domain.RecognitionTask;
+import app.harven.partsmanager.dto.RecognitionTaskResponseDto;
+import app.harven.partsmanager.mapper.DtoMapper;
+import app.harven.partsmanager.repository.RecognitionTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;

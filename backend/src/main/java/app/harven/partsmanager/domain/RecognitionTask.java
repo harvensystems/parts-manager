@@ -1,4 +1,4 @@
-package app.harven.partmanager.domain;
+package app.harven.partsmanager.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package app.harven.partmanager.dto;
+package app.harven.partsmanager.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataUrlUploadDto {
-    private String dataUrl;
-    private String filename;
+public class AdjustQuantityDto {
+    @Builder.Default
+    private Integer delta = 0;
 }

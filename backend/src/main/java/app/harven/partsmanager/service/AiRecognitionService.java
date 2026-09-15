@@ -1,11 +1,11 @@
-package app.harven.partmanager.service;
+package app.harven.partsmanager.service;
 
-import app.harven.partmanager.dto.AiResponseEntity;
+import app.harven.partsmanager.dto.AiResponseEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import app.harven.partmanager.domain.RecognitionStatus;
-import app.harven.partmanager.domain.RecognitionTask;
-import app.harven.partmanager.repository.RecognitionTaskRepository;
+import app.harven.partsmanager.domain.RecognitionStatus;
+import app.harven.partsmanager.domain.RecognitionTask;
+import app.harven.partsmanager.repository.RecognitionTaskRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;

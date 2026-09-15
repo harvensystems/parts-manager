@@ -1,9 +1,9 @@
-package app.harven.partmanager.mapper;
+package app.harven.partsmanager.mapper;
 
-import app.harven.partmanager.domain.Part;
-import app.harven.partmanager.domain.RecognitionTask;
-import app.harven.partmanager.dto.PartResponseDto;
-import app.harven.partmanager.dto.RecognitionTaskResponseDto;
+import app.harven.partsmanager.domain.Part;
+import app.harven.partsmanager.domain.RecognitionTask;
+import app.harven.partsmanager.dto.PartResponseDto;
+import app.harven.partsmanager.dto.RecognitionTaskResponseDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

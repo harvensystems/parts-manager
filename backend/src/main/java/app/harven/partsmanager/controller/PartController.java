@@ -1,9 +1,9 @@
-package app.harven.partmanager.controller;
+package app.harven.partsmanager.controller;
 
-import app.harven.partmanager.dto.AdjustQuantityDto;
-import app.harven.partmanager.dto.CreateOrUpdatePartDto;
-import app.harven.partmanager.dto.PartResponseDto;
-import app.harven.partmanager.service.PartService;
+import app.harven.partsmanager.dto.AdjustQuantityDto;
+import app.harven.partsmanager.dto.CreateOrUpdatePartDto;
+import app.harven.partsmanager.dto.PartResponseDto;
+import app.harven.partsmanager.service.PartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

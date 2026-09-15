@@ -1,10 +1,10 @@
-package app.harven.partmanager.service;
+package app.harven.partsmanager.service;
 
-import app.harven.partmanager.domain.Part;
-import app.harven.partmanager.dto.CreateOrUpdatePartDto;
-import app.harven.partmanager.dto.PartResponseDto;
-import app.harven.partmanager.mapper.DtoMapper;
-import app.harven.partmanager.repository.PartRepository;
+import app.harven.partsmanager.domain.Part;
+import app.harven.partsmanager.dto.CreateOrUpdatePartDto;
+import app.harven.partsmanager.dto.PartResponseDto;
+import app.harven.partsmanager.mapper.DtoMapper;
+import app.harven.partsmanager.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

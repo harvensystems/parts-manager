@@ -4,7 +4,7 @@ import ua from './ua.json'
 
 export type LocaleKey = 'ua' | 'en'
 
-const savedLocale = (localStorage.getItem('part_manager_locale') as LocaleKey) || 'ua'
+const savedLocale = (localStorage.getItem('parts_manager_locale') as LocaleKey) || 'ua'
 
 export const i18n = createI18n({
   legacy: false,

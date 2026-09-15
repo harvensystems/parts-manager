@@ -1,9 +1,14 @@
-package app.harven.partmanager.dto;
+package app.harven.partsmanager.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.TextIndexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,20 +20,45 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartResponseDto {
+@Document(collection = "parts")
+public class Part {
+
+    @Id
     private String id;
+
+    @TextIndexed(weight = 3)
     private String name;
+
+    @TextIndexed(weight = 2)
     private String type;
+
+    @TextIndexed
     private String manufacturer;
+
+    @TextIndexed(weight = 3)
     private String partNumber;
+
+    @TextIndexed
     private String packageType;
+
+    @TextIndexed
     private String mounting;
-    private Integer quantity;
+
+    @Builder.Default
+    private Integer quantity = 0;
+
+    @TextIndexed
     private String description;
+
     @Builder.Default
     private List<String> photoIds = new ArrayList<>();
+
     @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
+
+    @CreatedDate
     private Instant createdAt;
+
+    @LastModifiedDate
     private Instant updatedAt;
 }

@@ -1,6 +1,6 @@
-package app.harven.partmanager.dto;
+package app.harven.partsmanager.dto;
 
-import app.harven.partmanager.domain.RecognitionStatus;
+import app.harven.partsmanager.domain.RecognitionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

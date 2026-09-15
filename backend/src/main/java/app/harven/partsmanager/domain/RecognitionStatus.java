@@ -1,4 +1,4 @@
-package app.harven.partmanager.domain;
+package app.harven.partsmanager.domain;
 
 public enum RecognitionStatus {
     PENDING,

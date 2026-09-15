@@ -3,7 +3,7 @@ plugins {
 }
 
 subprojects {
-    group = 'com.workshop.partmanager'
+    group = 'com.workshop.partsmanager'
     version = '0.0.1-SNAPSHOT'
 
     repositories {

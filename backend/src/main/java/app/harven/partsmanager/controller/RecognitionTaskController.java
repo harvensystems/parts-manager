@@ -1,8 +1,8 @@
-package app.harven.partmanager.controller;
+package app.harven.partsmanager.controller;
 
-import app.harven.partmanager.dto.DataUrlUploadDto;
-import app.harven.partmanager.dto.RecognitionTaskResponseDto;
-import app.harven.partmanager.service.RecognitionTaskService;
+import app.harven.partsmanager.dto.DataUrlUploadDto;
+import app.harven.partsmanager.dto.RecognitionTaskResponseDto;
+import app.harven.partsmanager.service.RecognitionTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

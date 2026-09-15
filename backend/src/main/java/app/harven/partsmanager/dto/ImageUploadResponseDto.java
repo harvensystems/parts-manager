@@ -1,4 +1,4 @@
-package app.harven.partmanager.dto;
+package app.harven.partsmanager.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
-package app.harven.partmanager.controller;
+package app.harven.partsmanager.controller;
 
-import app.harven.partmanager.dto.ImageUploadResponseDto;
-import app.harven.partmanager.service.ImageStorageService;
+import app.harven.partsmanager.dto.ImageUploadResponseDto;
+import app.harven.partsmanager.service.ImageStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

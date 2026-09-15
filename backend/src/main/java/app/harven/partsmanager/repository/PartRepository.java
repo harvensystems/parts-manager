@@ -1,6 +1,6 @@
-package app.harven.partmanager.repository;
+package app.harven.partsmanager.repository;
 
-import app.harven.partmanager.domain.Part;
+import app.harven.partsmanager.domain.Part;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;

@@ -1,14 +1,14 @@
-# Part Manager
+# Parts Manager
 
 An AI-powered inventory and component management system designed for electronics workshops and makerspaces.
 
-Part Manager automates the cataloging and tracking of electronic parts, SMD components, modules, and workshop materials using computer vision and AI recognition.
+Parts Manager automates the cataloging and tracking of electronic parts, SMD components, modules, and workshop materials using computer vision and AI recognition.
 
 ---
 
 ## Features
 
-- **AI-Powered Part Recognition**: Upload or capture photos of components and let AI (Spring AI / OpenAI Vision) extract part numbers, categories, specifications, pinouts, and package types.
+- **AI-Powered Part Recognition**: Upload or capture photos of components and let AI (Spring AI / Gemini Vision) extract part numbers, categories, specifications, pinouts, and package types.
 - **Inventory & Stock Management**: Real-time tracking of quantities, storage locations (drawers, bins, shelves), low-stock alerts, and pricing.
 - **Verification Queue**: Review and verify AI recognition results before saving components into the catalog.
 - **Full-Text & Parametric Search**: Quickly find components by name, category, package type, value, or tags.
@@ -37,7 +37,7 @@ Part Manager automates the cataloging and tracking of electronic parts, SMD comp
 ## Project Structure
 
 ```
-part-manager/
+parts-manager/
 ├── backend/                  # Spring Boot backend (Java 21, Spring AI, MongoDB)
 │   ├── src/main/java/        # Java source code
 │   └── src/main/resources/   # Config files (application.yml)
@@ -58,7 +58,7 @@ part-manager/
 - **Java**: JDK 21+
 - **Node.js**: v18+ and `npm`
 - **Docker & Docker Compose**: (for local MongoDB)
-- **OpenAI API Key**: (required for AI component recognition)
+- **Gemini API Key**: (required for AI component recognition)
 
 ---
 
@@ -70,23 +70,23 @@ Run MongoDB using Docker Compose:
 docker-compose up -d
 ```
 
-MongoDB will be available at `mongodb://localhost:27017/part_manager`.
+MongoDB will be available at `mongodb://localhost:27017/parts_manager`.
 
 ---
 
 ### 2. Configure and Run Backend
 
-Set your OpenAI API key (or configure it in `backend/src/main/resources/application.yml`):
+Set your Gemini API key (or configure it in `backend/src/main/resources/application.yml`):
 
 ```bash
 # On Linux / macOS / Git Bash
-export OPENAI_API_KEY="your-openai-api-key"
+export AI_API_KEY="your-gemini-api-key"
 
 # On Windows (PowerShell)
-$env:OPENAI_API_KEY="your-openai-api-key"
+$env:AI_API_KEY="your-gemini-api-key"
 
 # On Windows (CMD)
-set OPENAI_API_KEY=your-openai-api-key
+set AI_API_KEY=your-gemini-api-key
 ```
 
 Run the backend via Gradle:
@@ -113,7 +113,7 @@ npm install
 npm run dev
 ```
 
-The frontend will be running at `http://localhost:3000` (or `http://localhost:5173` depending on port availability).
+The frontend will be running at `http://localhost:3000`.
 
 ---
 

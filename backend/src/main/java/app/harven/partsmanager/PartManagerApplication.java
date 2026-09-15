@@ -1,4 +1,4 @@
-package app.harven.partmanager;
+package app.harven.partsmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

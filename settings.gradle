@@ -1,4 +1,4 @@
-rootProject.name = 'part-manager'
+rootProject.name = 'parts-manager'
 
 include 'backend'
 include 'frontend'

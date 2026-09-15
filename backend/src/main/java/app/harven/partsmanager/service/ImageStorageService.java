@@ -1,4 +1,4 @@
-package app.harven.partmanager.service;
+package app.harven.partsmanager.service;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
