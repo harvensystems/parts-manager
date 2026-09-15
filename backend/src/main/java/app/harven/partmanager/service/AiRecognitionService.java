@@ -1,5 +1,6 @@
 package app.harven.partmanager.service;
 
+import app.harven.partmanager.dto.AiResponseEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import app.harven.partmanager.domain.RecognitionStatus;
@@ -9,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import reactor.core.publisher.Mono;
@@ -28,19 +29,18 @@ public class AiRecognitionService {
     private final ObjectMapper objectMapper;
     private final ChatClient.Builder chatClientBuilder;
 
-    @Value("${spring.ai.openai.api-key:}")
-    private String openAiApiKey;
+    @Value("${spring.ai.google.genai.api-key:}")
+    private String aiApiKey;
 
     @Autowired
     public AiRecognitionService(
             RecognitionTaskRepository taskRepository,
             ImageStorageService imageStorageService,
-            ObjectMapper objectMapper,
             @Autowired(required = false) ChatClient.Builder chatClientBuilder
     ) {
         this.taskRepository = taskRepository;
         this.imageStorageService = imageStorageService;
-        this.objectMapper = objectMapper;
+        this.objectMapper = new ObjectMapper();
         this.chatClientBuilder = chatClientBuilder;
     }
 
@@ -54,7 +54,7 @@ public class AiRecognitionService {
                 .flatMap(task -> {
                     long startTime = System.currentTimeMillis();
                     Mono<?> execution;
-                    if (openAiApiKey != null && !openAiApiKey.contains("mock") && !openAiApiKey.trim().isEmpty() && chatClientBuilder != null) {
+                    if (aiApiKey != null && !aiApiKey.contains("mock") && !aiApiKey.trim().isEmpty() && chatClientBuilder != null) {
                         execution = processWithSpringAi(task);
                     } else {
                         execution = Mono.fromRunnable(() -> processSimulated(task));
@@ -81,9 +81,9 @@ public class AiRecognitionService {
     }
 
     private Mono<Void> processWithSpringAi(RecognitionTask task) {
-        return imageStorageService.getImageResource(task.getPhotoId())
+        return imageStorageService.getImageBytes(task.getPhotoId())
                 .switchIfEmpty(Mono.error(new IllegalStateException("Photo not found in GridFS: " + task.getPhotoId())))
-                .flatMap(imageResource -> Mono.fromCallable(() -> {
+                .flatMap(imageBytes -> Mono.fromCallable(() -> {
                     ChatClient chatClient = chatClientBuilder.build();
                     String prompt = """
                         You are an expert electronics workshop assistant. Analyze this electronic component or package photo.
@@ -106,22 +106,17 @@ public class AiRecognitionService {
                         Do not guess values that cannot be identified from the image. Return only the JSON object.
                     """.stripIndent();
 
-                    String response = chatClient.prompt()
-                            .user(u -> u.text(prompt).media(MimeTypeUtils.parseMimeType(task.getContentType() != null ? task.getContentType() : "image/jpeg"), (Resource) imageResource))
+                    AiResponseEntity response = chatClient.prompt()
+                            .user(u ->
+                                    u.text(prompt)
+                                            .media(MimeTypeUtils.parseMimeType(task.getContentType() != null ? task.getContentType() : "image/jpeg"), new ByteArrayResource(imageBytes)))
                             .call()
-                            .content();
+                            .entity(AiResponseEntity.class);
 
-                    if (response != null && !response.trim().isEmpty()) {
-                        try {
-                            String cleanJson = response.replaceAll("^```json\\s*", "").replaceAll("\\s*```$", "").trim();
-                            Map<String, Object> map = objectMapper.readValue(cleanJson, new TypeReference<Map<String, Object>>() {});
-                            task.setAiResult(map);
-                            task.setRawText((String) map.get("rawText"));
-                            Object conf = map.get("confidence");
-                            task.setConfidence(conf instanceof Number ? ((Number) conf).doubleValue() : 90.0);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Failed to parse AI JSON response: " + e.getMessage(), e);
-                        }
+                    if (response != null) {
+                        task.setAiResult(objectMapper.readValue(objectMapper.writeValueAsString(response), new TypeReference<Map<String, Object>>() {}));
+                        task.setRawText(response.getRawText());
+                        task.setConfidence(response.getConfidence());
                     } else {
                         throw new RuntimeException("Empty response from AI");
                     }

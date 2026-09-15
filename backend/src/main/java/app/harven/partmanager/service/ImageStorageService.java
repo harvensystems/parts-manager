@@ -1,7 +1,7 @@
 package app.harven.partmanager.service;
 
-import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -39,8 +39,20 @@ public class ImageStorageService {
         return gridFsTemplate.store(
                 dataBufferFlux,
                 filename != null ? filename : "image.jpg",
-                contentType != null ? contentType : "image/jpeg"
+                contentType != null ? contentType : "image/jpeg",
+                new Document()
         ).map(ObjectId::toHexString);
+    }
+
+    public Mono<byte[]> getImageBytes(String imageId) {
+        return getImageResource(imageId)
+                .flatMap(resource -> DataBufferUtils.join(resource.getDownloadStream())
+                        .map(dataBuffer -> {
+                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                            dataBuffer.read(bytes);
+                            DataBufferUtils.release(dataBuffer);
+                            return bytes;
+                        }));
     }
 
     public Mono<ReactiveGridFsResource> getImageResource(String imageId) {
@@ -50,5 +62,10 @@ public class ImageStorageService {
 
     public Mono<Void> deleteImage(String imageId) {
         return gridFsTemplate.delete(new Query(Criteria.where("_id").is(imageId)));
+    }
+
+    //TODO resave image with optimized quality
+    public Mono<Void> optimizeImage(String imageId) {
+        return Mono.empty();
     }
 }

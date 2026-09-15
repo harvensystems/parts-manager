@@ -2,20 +2,16 @@ spring:
   application:
     name: part-manager-backend
 
-  data:
-    mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/part_manager}
-      auto-index-creation: true
+  mongodb:
+    uri: ${MONGODB_URI:mongodb://localhost:27017/part_manager}
 
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY:mock-key}
-      chat:
-        options:
-          model: gpt-4o-mini
-
-  codec:
-    max-in-memory-size: 25MB
+    google:
+      genai:
+        api-key: ${OPENAI_API_KEY:mock-key}
+        chat:
+          options:
+            model: gemini-3.6-flash
 
 server:
   port: 8080

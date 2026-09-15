@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -37,22 +38,18 @@ public class ImageController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get binary image by ID")
-    public Mono<ResponseEntity<Object>> getImage(@Parameter(description = "Image ID in GridFS")
-                                                   @PathVariable("id") String id) {
+    Mono<Void> getImage(@Parameter(description = "Image ID in GridFS")
+                                                 @PathVariable("id") String id, ServerWebExchange exchange) {
 
         return imageStorageService.getImageResource(id)
                 .flatMap(resource -> {
                     MediaType mediaType = MediaType.IMAGE_JPEG;
-                    return resource.getGridFSFile().map(file -> {
-                        if (file.getMetadata().containsKey("_contentType")) {
-//                            mediaType = MediaType.parseMediaType(file.getMetadata().getString("_contentType"));
-                        }
-                        return ResponseEntity.ok()
-//                                .contentType(mediaType)
-                                .body((Object) file);
+                    return resource.getGridFSFile()
+                            .flatMap(file -> {
+                                exchange.getResponse().getHeaders().setContentType(mediaType);
+                                return exchange.getResponse().writeWith(resource.getContent());
                     });
-                })
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                });
     }
 
     @DeleteMapping("/{id}")

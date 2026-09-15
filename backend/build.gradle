@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
+    id 'org.springframework.boot' version '4.0.7'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -11,7 +11,7 @@ java {
 }
 
 ext {
-    set('springAiVersion', "1.0.0-M6")
+    set('springAiVersion', "2.0.1")
 }
 
 dependencies {
@@ -28,7 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Spring AI
-    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+//    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
 
     // OpenAPI Docs for WebFlux
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.5'
