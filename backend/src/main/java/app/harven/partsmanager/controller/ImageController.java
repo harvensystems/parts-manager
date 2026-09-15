@@ -4,6 +4,8 @@ import app.harven.partsmanager.dto.ImageUploadResponseDto;
 import app.harven.partsmanager.service.ImageStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,7 +39,7 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get binary image by ID")
+    @Operation(summary = "Get binary image by ID", responses = @ApiResponse(responseCode = "200", content = @Content(mediaType = "image/jpeg")))
     Mono<Void> getImage(@Parameter(description = "Image ID in GridFS")
                                                  @PathVariable("id") String id, ServerWebExchange exchange) {
 

@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed, onMounted } from 'vue'
 import type { ComponentItem, QueueJob } from '../types/inventory'
-import { PartsApi, RecognitionApi, ImagesApi, type PartDto, type RecognitionTaskDto } from '../services/api'
 import { i18n } from '../locales'
+import { api } from '@/api'
+import { CreateOrUpdatePartDto, PartResponseDto, RecognitionTaskResponseDto } from "@/api/api.ts";
 
 export const useInventoryStore = defineStore('inventory', () => {
   const getT = () => i18n.global.t
@@ -43,6 +44,10 @@ export const useInventoryStore = defineStore('inventory', () => {
   // Settings
   const customApiKey = ref('')
 
+  const getImageUrl = (id: string) => {
+    return `/api/images/${id}`
+  }
+
   // Component Types list
   const componentTypes = [
     'Resistor',
@@ -65,15 +70,15 @@ export const useInventoryStore = defineStore('inventory', () => {
   const aiQueue = ref<QueueJob[]>([])
 
   // Helper converters
-  const partDtoToItem = (dto: PartDto): ComponentItem => {
+  const partDtoToItem = (dto: PartResponseDto): ComponentItem => {
     let photo = ''
     if (dto.photoIds && dto.photoIds.length > 0) {
-      photo = ImagesApi.getImageUrl(dto.photoIds[0])
+      photo = getImageUrl(dto.photoIds[0])
     }
     return {
       id: dto.id || '',
-      name: dto.name,
-      type: dto.type,
+      name: dto.name!!,
+      type: dto.type!!,
       manufacturer: dto.manufacturer || '',
       partNumber: dto.partNumber || '',
       package: dto.packageType || '',
@@ -86,7 +91,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
   }
 
-  const taskDtoToJob = (dto: RecognitionTaskDto): QueueJob => {
+  const taskDtoToJob = (dto: RecognitionTaskResponseDto): QueueJob => {
     const statusMap: Record<string, 'pending' | 'processing' | 'completed' | 'failed'> = {
       PENDING: 'pending',
       PROCESSING: 'processing',
@@ -94,7 +99,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       FAILED: 'failed',
     }
 
-    const aiResult = dto.aiResult ? {
+    const aiResult = dto.aiResult!! ? {
       name: dto.aiResult.name,
       type: dto.aiResult.type,
       manufacturer: dto.aiResult.manufacturer,
@@ -109,11 +114,11 @@ export const useInventoryStore = defineStore('inventory', () => {
     } : undefined
 
     return {
-      id: dto.id,
-      photoUrl: dto.photoId ? ImagesApi.getImageUrl(dto.photoId) : '',
+      id: dto.id!!,
+      photoUrl: dto.photoId ? getImageUrl(dto.photoId) : '',
       createdAt: dto.createdAt ? new Date(dto.createdAt).getTime() : Date.now(),
-      status: statusMap[dto.status] || 'pending',
-      aiResult,
+      status: statusMap[dto.status!!] || 'pending',
+      aiResult: aiResult,
       error: dto.errorMessage,
     }
   }
@@ -122,13 +127,13 @@ export const useInventoryStore = defineStore('inventory', () => {
   const fetchComponents = async () => {
     isLoadingComponents.value = true
     try {
-      const res = await PartsApi.list({
+      const res = await api.parts.listParts({
         search: searchQuery.value,
         type: selectedTypeFilter.value,
         mounting: selectedMountingFilter.value,
         sortBy: sortBy.value,
       })
-      components.value = res.data.map(partDtoToItem)
+      components.value = res.map(partDtoToItem)
     } catch (err: any) {
       console.error('Failed to fetch components:', err)
     } finally {
@@ -139,8 +144,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   // Fetch Queue from Backend
   const fetchQueue = async () => {
     try {
-      const res = await RecognitionApi.listTasks()
-      aiQueue.value = res.data.map(taskDtoToJob)
+      const res = await api.recognition.listTasks()
+      aiQueue.value = res.map(taskDtoToJob)
     } catch (err: any) {
       console.error('Failed to fetch AI tasks queue:', err)
     }
@@ -211,8 +216,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   const adjustQuantity = async (item: ComponentItem, delta: number) => {
     const t = getT()
     try {
-      const res = await PartsApi.adjustQuantity(item.id, delta)
-      const updated = partDtoToItem(res.data)
+      const res = await api.parts.adjustQuantity(item.id, { delta })
+      const updated = partDtoToItem(res)
       const idx = components.value.findIndex((c) => c.id === item.id)
       if (idx !== -1) {
         components.value[idx] = updated
@@ -231,7 +236,7 @@ export const useInventoryStore = defineStore('inventory', () => {
   const deleteComponent = async (id: string) => {
     const t = getT()
     try {
-      await PartsApi.delete(id)
+      await api.parts.deletePart(id)
       components.value = components.value.filter((c) => c.id !== id)
       if (selectedComponent.value?.id === id) {
         showDetailModal.value = false
@@ -253,7 +258,7 @@ export const useInventoryStore = defineStore('inventory', () => {
         if (id) photoIds.push(id)
       }
 
-      const dto: Partial<PartDto> = {
+      const dto: CreateOrUpdatePartDto = {
         name: compData.name || 'Unknown component',
         type: compData.type || 'Other',
         manufacturer: compData.manufacturer || '',
@@ -266,8 +271,8 @@ export const useInventoryStore = defineStore('inventory', () => {
         metadata: compData.metadata || {},
       }
 
-      const res = await PartsApi.saveOrUpdate(dto)
-      const savedItem = partDtoToItem(res.data)
+      const res = await api.parts.saveOrUpdatePart(dto)
+      const savedItem = partDtoToItem(res)
 
       const existingIndex = components.value.findIndex((c) => c.id === savedItem.id)
       if (existingIndex !== -1) {
@@ -302,8 +307,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   const addQueueJob = async (photoUrl: string) => {
     const t = getT()
     try {
-      const res = await RecognitionApi.uploadDataUrl(photoUrl, 'capture.jpg')
-      const job = taskDtoToJob(res.data)
+      const res = await api.recognition.uploadDataUrl({dataUrl: photoUrl, filename: 'capture.jpg'})
+      const job = taskDtoToJob(res)
       aiQueue.value.unshift(job)
       showToast(t('toast.photoUploaded'))
     } catch (err: any) {
@@ -324,8 +329,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   const uploadFileToQueue = async (file: File) => {
     const t = getT()
     try {
-      const res = await RecognitionApi.uploadFile(file)
-      const job = taskDtoToJob(res.data)
+      const res = await api.recognition.uploadFile({ file })
+      const job = taskDtoToJob(res)
       aiQueue.value.unshift(job)
       showToast(t('toast.fileUploaded'))
     } catch (err: any) {
@@ -365,8 +370,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   const retryAiJob = async (job: QueueJob) => {
     const t = getT()
     try {
-      const res = await RecognitionApi.retry(job.id)
-      const updated = taskDtoToJob(res.data)
+      const res = await api.recognition.retryTask(job.id)
+      const updated = taskDtoToJob(res)
       const idx = aiQueue.value.findIndex((j) => j.id === job.id)
       if (idx !== -1) {
         aiQueue.value[idx] = updated
@@ -385,7 +390,7 @@ export const useInventoryStore = defineStore('inventory', () => {
   const removeQueueJob = async (jobId: string) => {
     const t = getT()
     try {
-      await RecognitionApi.deleteTask(jobId)
+      await api.recognition.deleteTask(jobId)
       aiQueue.value = aiQueue.value.filter((j) => j.id !== jobId)
       showToast(t('toast.jobRemoved'))
     } catch (err: any) {
