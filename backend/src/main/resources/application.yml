@@ -3,12 +3,12 @@ spring:
     name: part-manager-backend
 
   mongodb:
-    uri: ${MONGODB_URI:mongodb://localhost:27017/part_manager}
+    uri: ${MONGODB_URI:mongodb://localhost:27017/parts_manager}
 
   ai:
     google:
       genai:
-        api-key: ${OPENAI_API_KEY:mock-key}
+        api-key: ${AI_API_KEY:mock-key}
         chat:
           options:
             model: gemini-3.6-flash

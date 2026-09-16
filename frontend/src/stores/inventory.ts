@@ -212,6 +212,7 @@ export const useInventoryStore = defineStore('inventory', () => {
       photoUrl: dto.photoId ? getImageUrl(dto.photoId) : '',
       createdAt: dto.createdAt ? new Date(dto.createdAt).getTime() : Date.now(),
       status: statusMap[dto.status!!] || 'pending',
+      //@ts-ignore
       aiResult: aiResult,
       error: dto.errorMessage,
     }

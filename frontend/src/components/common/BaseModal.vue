@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, nextTick } from 'vue'
+import { computed, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
