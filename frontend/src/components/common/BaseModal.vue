@@ -3,31 +3,31 @@
     <transition name="modal-fade">
       <div 
         v-if="modelValue" 
-        class="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-hidden"
+        class="fixed inset-0 z-50 flex items-center justify-center sm:p-4 bg-slate-900/60 dark:bg-slate-950/85 backdrop-blur-md overflow-hidden"
         @click.self="onBackdropClick"
       >
         <!-- Modal Card: Full Screen on Mobile (<sm), Centered Card on sm+ -->
         <div 
-          class="w-full h-full sm:h-auto sm:max-h-[90vh] bg-slate-900 sm:border sm:border-slate-700/80 sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-200"
+          class="w-full h-full sm:h-auto sm:max-h-[90vh] bg-white dark:bg-slate-900 sm:border sm:border-slate-200 dark:sm:border-slate-700/80 sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-200"
           :class="maxWidthClass"
         >
           <!-- Modal Header -->
-          <div class="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/95 sticky top-0 z-10 shrink-0">
+          <div class="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 sticky top-0 z-10 shrink-0">
             <slot name="header">
               <div class="flex items-center space-x-2.5">
-                <div v-if="icon" class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                <div v-if="icon" class="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg">
                   <i :data-lucide="icon" class="w-5 h-5"></i>
                 </div>
                 <div>
-                  <h3 class="font-bold text-white text-sm sm:text-base leading-snug">{{ title }}</h3>
-                  <p v-if="subtitle" class="text-xs text-slate-400 leading-none mt-0.5">{{ subtitle }}</p>
+                  <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug">{{ title }}</h3>
+                  <p v-if="subtitle" class="text-xs text-slate-500 dark:text-slate-400 leading-none mt-0.5">{{ subtitle }}</p>
                 </div>
               </div>
             </slot>
 
             <button 
               @click="close" 
-              class="p-2 -mr-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              class="p-2 -mr-1 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               title="Закрити"
             >
               <i data-lucide="x" class="w-5 h-5"></i>
@@ -35,17 +35,17 @@
           </div>
 
           <!-- Optional Sub-header (Tabs etc.) -->
-          <div v-if="$slots.subheader" class="border-b border-slate-800 bg-slate-950/50 shrink-0">
+          <div v-if="$slots.subheader" class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 shrink-0">
             <slot name="subheader"></slot>
           </div>
 
           <!-- Modal Body (Scrollable) -->
-          <div class="flex-1 overflow-y-auto p-4 sm:p-5 overscroll-contain">
+          <div class="flex-1 overflow-y-auto p-4 sm:p-5 overscroll-contain text-slate-800 dark:text-slate-200">
             <slot></slot>
           </div>
 
           <!-- Modal Footer -->
-          <div v-if="$slots.footer" class="px-4 py-3 sm:px-5 sm:py-3.5 bg-slate-950/90 border-t border-slate-800/80 sticky bottom-0 z-10 shrink-0 safe-area-pb">
+          <div v-if="$slots.footer" class="px-4 py-3 sm:px-5 sm:py-3.5 bg-slate-50 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800/80 sticky bottom-0 z-10 shrink-0 safe-area-pb">
             <slot name="footer"></slot>
           </div>
         </div>

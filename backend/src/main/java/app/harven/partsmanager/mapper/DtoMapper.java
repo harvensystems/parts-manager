@@ -1,7 +1,9 @@
 package app.harven.partsmanager.mapper;
 
+import app.harven.partsmanager.domain.AppSetting;
 import app.harven.partsmanager.domain.Part;
 import app.harven.partsmanager.domain.RecognitionTask;
+import app.harven.partsmanager.dto.AppSettingDto;
 import app.harven.partsmanager.dto.PartResponseDto;
 import app.harven.partsmanager.dto.RecognitionTaskResponseDto;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,21 @@ import java.util.HashMap;
 
 @Component
 public class DtoMapper {
+
+    public AppSettingDto toAppSettingDto(AppSetting setting) {
+        if (setting == null) {
+            return null;
+        }
+        return AppSettingDto.builder()
+                .lowStockThreshold(setting.getLowStockThreshold())
+                .imageQuality(setting.getImageQuality())
+                .defaultPageSize(setting.getDefaultPageSize())
+                .autoProcessAi(setting.getAutoProcessAi())
+                .aiProvider(setting.getAiProvider())
+                .customApiKey(setting.getCustomApiKey())
+                .updatedAt(setting.getUpdatedAt())
+                .build();
+    }
 
     public PartResponseDto toPartResponseDto(Part part) {
         if (part == null) {

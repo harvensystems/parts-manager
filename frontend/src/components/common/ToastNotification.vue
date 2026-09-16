@@ -2,9 +2,9 @@
   <transition name="toast-fade">
     <div 
       v-if="store.toastMessage" 
-      class="fixed bottom-18 md:bottom-6 right-4 z-50 bg-slate-900/95 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 backdrop-blur-md"
+      class="fixed bottom-18 md:bottom-6 right-4 z-50 bg-white/95 dark:bg-slate-900/95 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 backdrop-blur-md"
     >
-      <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+      <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
       <span>{{ store.toastMessage }}</span>
     </div>
   </transition>

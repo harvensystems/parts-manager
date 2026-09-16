@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col pb-20 md:pb-6 font-sans antialiased text-slate-100 bg-slate-950 selection:bg-emerald-500 selection:text-slate-950">
+  <div class="min-h-screen flex flex-col pb-20 md:pb-6 font-sans antialiased text-slate-800 bg-slate-100 dark:text-slate-100 dark:bg-slate-900 selection:bg-emerald-500 selection:text-slate-950">
     <!-- Header -->
     <AppHeader />
 
@@ -13,6 +13,9 @@
 
       <!-- AI Queue View -->
       <QueueView v-if="store.currentView === 'queue'" />
+
+      <!-- Settings View -->
+      <SettingsView v-if="store.currentView === 'settings'" />
     </main>
 
     <!-- Mobile Bottom Navigation -->
@@ -22,7 +25,6 @@
     <UploadModal />
     <VerifyModal />
     <DetailModal />
-    <SettingsModal />
 
     <!-- Toast Notification -->
     <ToastNotification />
@@ -41,11 +43,11 @@ import MobileNav from './components/layout/MobileNav.vue'
 
 import CatalogView from './components/catalog/CatalogView.vue'
 import QueueView from './components/queue/QueueView.vue'
+import SettingsView from './components/settings/SettingsView.vue'
 
 import UploadModal from './components/modals/UploadModal.vue'
 import VerifyModal from './components/modals/VerifyModal.vue'
 import DetailModal from './components/modals/DetailModal.vue'
-import SettingsModal from './components/modals/SettingsModal.vue'
 import ToastNotification from './components/common/ToastNotification.vue'
 
 const store = useInventoryStore()
@@ -69,11 +71,11 @@ onMounted(() => {
 watch(
   () => [
     locale.value,
+    store.isDarkMode,
     store.currentView,
     store.showUploadModal,
     store.showVerifyModal,
     store.showDetailModal,
-    store.showSettingsModal,
     store.filteredComponents.length,
     store.aiQueue.length,
     store.toastMessage,

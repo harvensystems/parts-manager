@@ -10,6 +10,52 @@
  * ---------------------------------------------------------------
  */
 
+export interface AppSettingDto {
+  /**
+   * Low stock threshold alert quantity
+   * @format int32
+   * @min 0
+   * @example 5
+   */
+  lowStockThreshold?: number;
+  /**
+   * Image compression quality (1-100)
+   * @format int32
+   * @min 1
+   * @max 100
+   * @example 80
+   */
+  imageQuality?: number;
+  /**
+   * Default page size for parts catalog
+   * @format int32
+   * @min 5
+   * @max 200
+   * @example 20
+   */
+  defaultPageSize?: number;
+  /**
+   * Auto process AI tasks upon upload
+   * @example true
+   */
+  autoProcessAi?: boolean;
+  /**
+   * Active AI recognition provider
+   * @example "gemini"
+   */
+  aiProvider?: string;
+  /**
+   * Custom API key for AI provider
+   * @example "sk-..."
+   */
+  customApiKey?: string;
+  /**
+   * Timestamp of last settings update
+   * @format date-time
+   */
+  updatedAt?: string;
+}
+
 export interface CreateOrUpdatePartDto {
   name: string;
   type?: string;
@@ -632,6 +678,35 @@ export class Api<
       this.request<void, any>({
         path: `/api/images/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  settings = {
+    /**
+     * @tags Settings
+     * @name GetSettings
+     * @summary Get application settings
+     * @request GET:/api/settings
+     */
+    getSettings: (params: RequestParams = {}) =>
+      this.request<AppSettingDto, any>({
+        path: `/api/settings`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * @tags Settings
+     * @name UpdateSettings
+     * @summary Update application settings
+     * @request PUT:/api/settings
+     */
+    updateSettings: (data: AppSettingDto, params: RequestParams = {}) =>
+      this.request<AppSettingDto, any>({
+        path: `/api/settings`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };

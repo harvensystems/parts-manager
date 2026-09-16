@@ -3,13 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import type { ComponentItem, QueueJob } from '../types/inventory'
 import { i18n } from '../locales'
 import { api } from '@/api'
-import { CreateOrUpdatePartDto, PartResponseDto, RecognitionTaskResponseDto } from "@/api/api.ts";
+import { AppSettingDto, CreateOrUpdatePartDto, PartResponseDto, RecognitionTaskResponseDto } from "@/api/api.ts";
 
 export const useInventoryStore = defineStore('inventory', () => {
   const getT = () => i18n.global.t
 
   // Navigation & Views
-  const currentView = ref<'catalog' | 'queue'>('catalog')
+  const currentView = ref<'catalog' | 'queue' | 'settings'>('catalog')
   const searchQuery = ref('')
   const selectedTypeFilter = ref('')
   const selectedMountingFilter = ref('')
@@ -17,7 +17,6 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   // Modals visibility
   const showUploadModal = ref(false)
-  const showSettingsModal = ref(false)
   const showVerifyModal = ref(false)
   const showDetailModal = ref(false)
 
@@ -28,6 +27,8 @@ export const useInventoryStore = defineStore('inventory', () => {
   // Loading indicators
   const isLoadingComponents = ref(false)
   const isLoadingQueue = ref(false)
+  const isLoadingSettings = ref(false)
+  const isSavingSettings = ref(false)
 
   // Toast notifications
   const toastMessage = ref('')
@@ -42,7 +43,100 @@ export const useInventoryStore = defineStore('inventory', () => {
   }
 
   // Settings
+  const lowStockThreshold = ref(5)
+  const imageQuality = ref(80)
+  const defaultPageSize = ref(20)
+  const autoProcessAi = ref(true)
+  const aiProvider = ref('gemini')
   const customApiKey = ref('')
+  const isDarkMode = ref(true)
+
+  const toggleTheme = () => {
+    isDarkMode.value = !isDarkMode.value
+    localStorage.setItem('part_manager_theme', isDarkMode.value ? 'dark' : 'light')
+    applyTheme()
+  }
+
+  const setTheme = (dark: boolean) => {
+    isDarkMode.value = dark
+    localStorage.setItem('part_manager_theme', dark ? 'dark' : 'light')
+    applyTheme()
+  }
+
+  const initTheme = () => {
+    const savedTheme = localStorage.getItem('part_manager_theme')
+    if (savedTheme) {
+      isDarkMode.value = savedTheme === 'dark'
+    } else {
+      isDarkMode.value = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    applyTheme()
+  }
+
+  const applyTheme = () => {
+    if (typeof document !== 'undefined') {
+      if (isDarkMode.value) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
+  }
+
+  const fetchSettings = async () => {
+    isLoadingSettings.value = true
+    try {
+      const res = await api.settings.getSettings()
+      if (res) {
+        if (res.lowStockThreshold !== undefined) lowStockThreshold.value = res.lowStockThreshold
+        if (res.imageQuality !== undefined) imageQuality.value = res.imageQuality
+        if (res.defaultPageSize !== undefined) defaultPageSize.value = res.defaultPageSize
+        if (res.autoProcessAi !== undefined) autoProcessAi.value = res.autoProcessAi
+        if (res.aiProvider) aiProvider.value = res.aiProvider
+        if (res.customApiKey !== undefined) customApiKey.value = res.customApiKey
+      }
+    } catch (err: any) {
+      console.warn('Could not load settings from backend, using local defaults:', err)
+    } finally {
+      isLoadingSettings.value = false
+    }
+  }
+
+  const saveBackendSettings = async (settingsData: Partial<AppSettingDto>) => {
+    isSavingSettings.value = true
+    const t = getT()
+    try {
+      const payload: AppSettingDto = {
+        lowStockThreshold: settingsData.lowStockThreshold ?? lowStockThreshold.value,
+        imageQuality: settingsData.imageQuality ?? imageQuality.value,
+        defaultPageSize: settingsData.defaultPageSize ?? defaultPageSize.value,
+        autoProcessAi: settingsData.autoProcessAi ?? autoProcessAi.value,
+        aiProvider: settingsData.aiProvider ?? aiProvider.value,
+        customApiKey: settingsData.customApiKey ?? customApiKey.value,
+      }
+      const res = await api.settings.updateSettings(payload)
+      if (res) {
+        if (res.lowStockThreshold !== undefined) lowStockThreshold.value = res.lowStockThreshold
+        if (res.imageQuality !== undefined) imageQuality.value = res.imageQuality
+        if (res.defaultPageSize !== undefined) defaultPageSize.value = res.defaultPageSize
+        if (res.autoProcessAi !== undefined) autoProcessAi.value = res.autoProcessAi
+        if (res.aiProvider) aiProvider.value = res.aiProvider
+        if (res.customApiKey !== undefined) customApiKey.value = res.customApiKey
+      }
+      showToast(t('settings.savedToast'))
+    } catch (err: any) {
+      console.error('Failed to save settings:', err)
+      if (settingsData.lowStockThreshold !== undefined) lowStockThreshold.value = settingsData.lowStockThreshold
+      if (settingsData.imageQuality !== undefined) imageQuality.value = settingsData.imageQuality
+      if (settingsData.defaultPageSize !== undefined) defaultPageSize.value = settingsData.defaultPageSize
+      if (settingsData.autoProcessAi !== undefined) autoProcessAi.value = settingsData.autoProcessAi
+      if (settingsData.aiProvider) aiProvider.value = settingsData.aiProvider
+      if (settingsData.customApiKey !== undefined) customApiKey.value = settingsData.customApiKey
+      showToast(t('settings.savedToast'))
+    } finally {
+      isSavingSettings.value = false
+    }
+  }
 
   const getImageUrl = (id: string) => {
     return `/api/images/${id}`
@@ -449,6 +543,8 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   // Initial load
   onMounted(() => {
+    initTheme()
+    fetchSettings()
     fetchComponents()
     fetchQueue()
     startQueuePolling()
@@ -461,16 +557,27 @@ export const useInventoryStore = defineStore('inventory', () => {
     selectedMountingFilter,
     sortBy,
     showUploadModal,
-    showSettingsModal,
     showVerifyModal,
     showDetailModal,
     activeVerifyJob,
     selectedComponent,
     isLoadingComponents,
     isLoadingQueue,
+    isLoadingSettings,
+    isSavingSettings,
     toastMessage,
     showToast,
+    lowStockThreshold,
+    imageQuality,
+    defaultPageSize,
+    autoProcessAi,
+    aiProvider,
     customApiKey,
+    isDarkMode,
+    toggleTheme,
+    setTheme,
+    fetchSettings,
+    saveBackendSettings,
     componentTypes,
     components,
     aiQueue,

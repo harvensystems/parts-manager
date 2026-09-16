@@ -13,14 +13,14 @@
         <button 
           @click="switchTab('file')"
           class="flex-1 py-2 text-center rounded-lg font-medium transition cursor-pointer"
-          :class="uploadTab === 'file' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'"
+          :class="uploadTab === 'file' ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'"
         >
           {{ t('uploadModal.tabFile') }}
         </button>
         <button 
           @click="switchTab('stream')"
           class="flex-1 py-2 text-center rounded-lg font-medium transition cursor-pointer flex items-center justify-center gap-1.5"
-          :class="uploadTab === 'stream' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'"
+          :class="uploadTab === 'stream' ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'"
         >
           <span>{{ t('uploadModal.tabCamera') }}</span>
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -28,7 +28,7 @@
         <button 
           @click="switchTab('samples')"
           class="flex-1 py-2 text-center rounded-lg font-medium transition cursor-pointer"
-          :class="uploadTab === 'samples' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'"
+          :class="uploadTab === 'samples' ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'"
         >
           {{ t('uploadModal.tabSamples') }}
         </button>
@@ -44,7 +44,7 @@
           @dragleave.prevent="isDragging = false"
           @drop.prevent="handleDrop"
           class="border-2 border-dashed rounded-xl p-8 sm:p-10 text-center transition flex flex-col items-center justify-center cursor-pointer relative"
-          :class="isDragging ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-700 hover:border-slate-600 bg-slate-900/50'"
+          :class="isDragging ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-900/50'"
           @click="triggerFileInput"
         >
           <input 
@@ -55,17 +55,17 @@
             class="hidden" 
             @change="handleFileSelect"
           >
-          <div class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-emerald-400 mb-3 shadow-lg">
+          <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 shadow-md border border-slate-200 dark:border-slate-700">
             <i data-lucide="upload-cloud" class="w-7 h-7"></i>
           </div>
-          <p class="text-sm font-semibold text-white">{{ t('uploadModal.dropzoneTitle') }}</p>
-          <p class="text-xs text-slate-400 mt-1">{{ t('uploadModal.dropzoneSubtitle') }}</p>
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ t('uploadModal.dropzoneTitle') }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ t('uploadModal.dropzoneSubtitle') }}</p>
         </div>
       </div>
 
       <!-- 2. Live Camera Stream -->
       <div v-if="uploadTab === 'stream'" class="space-y-3">
-        <div class="relative bg-black rounded-xl overflow-hidden aspect-video sm:aspect-4/3 flex items-center justify-center border border-slate-800">
+        <div class="relative bg-black rounded-xl overflow-hidden aspect-video sm:aspect-4/3 flex items-center justify-center border border-slate-300 dark:border-slate-800">
           <video ref="videoRef" autoplay playsinline muted class="w-full h-full object-cover"></video>
           <canvas ref="canvasRef" class="hidden"></canvas>
           
@@ -84,7 +84,7 @@
         <button 
           @click="captureFrame"
           :disabled="cameraLoading"
-          class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-slate-950 font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer active:scale-98"
+          class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white dark:text-slate-950 font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer active:scale-98"
         >
           <i data-lucide="aperture" class="w-5 h-5"></i>
           {{ t('uploadModal.captureBtn') }}
@@ -93,13 +93,13 @@
 
       <!-- 3. Pre-made Sample Photos -->
       <div v-if="uploadTab === 'samples'" class="space-y-3">
-        <p class="text-xs text-slate-400">{{ t('uploadModal.samplesHelp') }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('uploadModal.samplesHelp') }}</p>
         <div class="grid grid-cols-3 gap-2 sm:gap-3">
           <button 
             v-for="sample in sampleList" 
             :key="sample.name"
             @click="selectSample(sample)"
-            class="group relative rounded-xl overflow-hidden border border-slate-700 hover:border-emerald-500 text-left transition aspect-square bg-slate-950 cursor-pointer"
+            class="group relative rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-left transition aspect-square bg-slate-100 dark:bg-slate-950 cursor-pointer"
           >
             <img :src="sample.url" :alt="sample.name" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent flex items-end p-2">
@@ -112,14 +112,14 @@
 
     <!-- Modal Footer -->
     <template #footer>
-      <div class="flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
         <span class="flex items-center gap-1.5">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
           <span class="hidden xs:inline">{{ t('uploadModal.nonBlocking') }}</span>
         </span>
         <button 
           @click="handleClose"
-          class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition cursor-pointer"
+          class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition cursor-pointer"
         >
           {{ t('uploadModal.cancel') }}
         </button>
