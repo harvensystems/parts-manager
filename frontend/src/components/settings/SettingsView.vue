@@ -24,11 +24,11 @@
         <button
           type="button"
           @click="saveSettings"
-          :disabled="store.isSavingSettings"
+          :disabled="settingsStore.isSavingSettings"
           class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white dark:text-slate-950 text-xs sm:text-sm font-bold rounded-lg shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
         >
-          <i v-if="!store.isSavingSettings" data-lucide="check" class="w-4 h-4"></i>
-          <span v-if="store.isSavingSettings">{{ t('settings.saving') }}</span>
+          <i v-if="!settingsStore.isSavingSettings" data-lucide="check" class="w-4 h-4"></i>
+          <span v-if="settingsStore.isSavingSettings">{{ t('settings.saving') }}</span>
           <span v-else>{{ t('settings.save') }}</span>
         </button>
       </div>
@@ -87,18 +87,18 @@
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              @click="store.setTheme(true)"
+              @click="uiStore.setTheme(true)"
               class="px-3 py-2.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
-              :class="store.isDarkMode ? 'bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+              :class="uiStore.isDarkMode ? 'bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400'"
             >
               <i data-lucide="moon" class="w-4 h-4 text-amber-500 dark:text-amber-400"></i>
               <span>{{ t('settings.themeDark') }}</span>
             </button>
             <button
               type="button"
-              @click="store.setTheme(false)"
+              @click="uiStore.setTheme(false)"
               class="px-3 py-2.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
-              :class="!store.isDarkMode ? 'bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+              :class="!uiStore.isDarkMode ? 'bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-xs' : 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-400'"
             >
               <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
               <span>{{ t('settings.themeLight') }}</span>
@@ -289,37 +289,39 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useInventoryStore } from '../../stores/inventory'
+import { useUiStore } from '@/stores/ui'
+import { useSettingsStore } from '@/stores/settings'
 
-const store = useInventoryStore()
+const uiStore = useUiStore()
+const settingsStore = useSettingsStore()
 const { t, locale } = useI18n()
 
 const showApiKey = ref(false)
 
-const localLowStock = ref(store.lowStockThreshold)
-const localImageQuality = ref(store.imageQuality)
-const localDefaultPageSize = ref(store.defaultPageSize)
-const localAutoProcess = ref(store.autoProcessAi)
-const localAiProvider = ref(store.aiProvider)
-const localApiKey = ref(store.customApiKey)
+const localLowStock = ref(settingsStore.lowStockThreshold)
+const localImageQuality = ref(settingsStore.imageQuality)
+const localDefaultPageSize = ref(settingsStore.defaultPageSize)
+const localAutoProcess = ref(settingsStore.autoProcessAi)
+const localAiProvider = ref(settingsStore.aiProvider)
+const localApiKey = ref(settingsStore.customApiKey)
 
 const syncLocalFromStore = () => {
-  localLowStock.value = store.lowStockThreshold
-  localImageQuality.value = store.imageQuality
-  localDefaultPageSize.value = store.defaultPageSize
-  localAutoProcess.value = store.autoProcessAi
-  localAiProvider.value = store.aiProvider
-  localApiKey.value = store.customApiKey
+  localLowStock.value = settingsStore.lowStockThreshold
+  localImageQuality.value = settingsStore.imageQuality
+  localDefaultPageSize.value = settingsStore.defaultPageSize
+  localAutoProcess.value = settingsStore.autoProcessAi
+  localAiProvider.value = settingsStore.aiProvider
+  localApiKey.value = settingsStore.customApiKey
 }
 
 watch(
   () => [
-    store.lowStockThreshold,
-    store.imageQuality,
-    store.defaultPageSize,
-    store.autoProcessAi,
-    store.aiProvider,
-    store.customApiKey,
+    settingsStore.lowStockThreshold,
+    settingsStore.imageQuality,
+    settingsStore.defaultPageSize,
+    settingsStore.autoProcessAi,
+    settingsStore.aiProvider,
+    settingsStore.customApiKey,
   ],
   () => {
     syncLocalFromStore()
@@ -336,7 +338,7 @@ const changeLocale = (lang: string) => {
 }
 
 const saveSettings = async () => {
-  await store.saveBackendSettings({
+  await settingsStore.saveBackendSettings({
     lowStockThreshold: localLowStock.value,
     imageQuality: localImageQuality.value,
     defaultPageSize: localDefaultPageSize.value,

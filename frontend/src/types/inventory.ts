@@ -35,10 +35,3 @@ export interface QueueJob {
   }
   error?: string
 }
-
-export interface SampleImage {
-  name: string
-  url: string
-  type: string
-  partNumber: string
-}

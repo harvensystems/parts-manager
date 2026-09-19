@@ -35,5 +35,5 @@ public class CreateOrUpdatePartDto {
     @Builder.Default
     private List<String> photoIds = new ArrayList<>();
     @Builder.Default
-    private Map<String, Object> metadata = new HashMap<>();
+    private Map<String, String> metadata = new HashMap<>();
 }

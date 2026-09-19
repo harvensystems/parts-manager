@@ -9,7 +9,6 @@ import app.harven.partsmanager.repository.RecognitionTaskRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -28,20 +27,22 @@ public class AiRecognitionService {
     private final ImageStorageService imageStorageService;
     private final ObjectMapper objectMapper;
     private final ChatClient.Builder chatClientBuilder;
-
-    @Value("${spring.ai.google.genai.api-key:}")
-    private String aiApiKey;
+    private final Boolean enabledAi;
+//    @Value("${spring.ai.google.genai.api-key:}")
+//    private String aiApiKey;
 
     @Autowired
     public AiRecognitionService(
             RecognitionTaskRepository taskRepository,
             ImageStorageService imageStorageService,
+            Boolean enabledAi,
             @Autowired(required = false) ChatClient.Builder chatClientBuilder
     ) {
         this.taskRepository = taskRepository;
         this.imageStorageService = imageStorageService;
         this.objectMapper = new ObjectMapper();
         this.chatClientBuilder = chatClientBuilder;
+        this.enabledAi = enabledAi;
     }
 
     public void processTaskAsync(String taskId) {
@@ -54,7 +55,7 @@ public class AiRecognitionService {
                 .flatMap(task -> {
                     long startTime = System.currentTimeMillis();
                     Mono<?> execution;
-                    if (aiApiKey != null && !aiApiKey.contains("mock") && !aiApiKey.trim().isEmpty() && chatClientBuilder != null) {
+                    if (enabledAi && chatClientBuilder != null) {
                         execution = processWithSpringAi(task);
                     } else {
                         execution = Mono.fromRunnable(() -> processSimulated(task));

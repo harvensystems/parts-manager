@@ -2,8 +2,9 @@ spring:
   application:
     name: part-manager-backend
 
+
   mongodb:
-    uri: ${MONGODB_URI:mongodb://localhost:27017/parts_manager}
+    uri: ${MONGODB_URI:mongodb://localhost:27017/part_manager}
 
   ai:
     google:
@@ -12,6 +13,9 @@ spring:
         chat:
           options:
             model: gemini-3.6-flash
+  webflux:
+    format:
+      date: iso
 
 server:
   port: 8080

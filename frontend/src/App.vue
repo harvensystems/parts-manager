@@ -9,13 +9,13 @@
     <!-- Main View Content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6">
       <!-- Catalog View -->
-      <CatalogView v-if="store.currentView === 'catalog'" />
+      <CatalogView v-if="uiStore.currentView === 'catalog'" />
 
       <!-- AI Queue View -->
-      <QueueView v-if="store.currentView === 'queue'" />
+      <QueueView v-if="uiStore.currentView === 'queue'" />
 
       <!-- Settings View -->
-      <SettingsView v-if="store.currentView === 'settings'" />
+      <SettingsView v-if="uiStore.currentView === 'settings'" />
     </main>
 
     <!-- Mobile Bottom Navigation -->
@@ -23,7 +23,6 @@
 
     <!-- Modals -->
     <UploadModal />
-    <VerifyModal />
     <DetailModal />
 
     <!-- Toast Notification -->
@@ -35,22 +34,27 @@
 import { onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { createIcons, icons } from 'lucide'
-import { useInventoryStore } from './stores/inventory'
+import { useUiStore } from '@/stores/ui'
+import { useCatalogStore } from '@/stores/catalog'
+import { useQueueStore } from '@/stores/queue'
+import { useSettingsStore } from '@/stores/settings'
 
-import AppHeader from './components/layout/AppHeader.vue'
-import StatsBanner from './components/layout/StatsBanner.vue'
-import MobileNav from './components/layout/MobileNav.vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import StatsBanner from '@/components/layout/StatsBanner.vue'
+import MobileNav from '@/components/layout/MobileNav.vue'
 
-import CatalogView from './components/catalog/CatalogView.vue'
-import QueueView from './components/queue/QueueView.vue'
-import SettingsView from './components/settings/SettingsView.vue'
+import CatalogView from '@/components/catalog/CatalogView.vue'
+import QueueView from '@/components/queue/QueueView.vue'
+import SettingsView from '@/components/settings/SettingsView.vue'
 
-import UploadModal from './components/modals/UploadModal.vue'
-import VerifyModal from './components/modals/VerifyModal.vue'
-import DetailModal from './components/modals/DetailModal.vue'
-import ToastNotification from './components/common/ToastNotification.vue'
+import UploadModal from '@/components/modals/UploadModal.vue'
+import DetailModal from '@/components/modals/DetailModal.vue'
+import ToastNotification from '@/components/common/ToastNotification.vue'
 
-const store = useInventoryStore()
+const uiStore = useUiStore()
+const catalogStore = useCatalogStore()
+const queueStore = useQueueStore()
+const settingsStore = useSettingsStore()
 const { locale } = useI18n()
 
 const updateIcons = () => {
@@ -64,6 +68,12 @@ const updateIcons = () => {
 }
 
 onMounted(() => {
+  uiStore.initTheme()
+  settingsStore.fetchSettings()
+  catalogStore.fetchComponents()
+  catalogStore.fetchDictionary()
+  queueStore.fetchQueue()
+  queueStore.startQueuePolling()
   updateIcons()
 })
 
@@ -71,14 +81,14 @@ onMounted(() => {
 watch(
   () => [
     locale.value,
-    store.isDarkMode,
-    store.currentView,
-    store.showUploadModal,
-    store.showVerifyModal,
-    store.showDetailModal,
-    store.filteredComponents.length,
-    store.aiQueue.length,
-    store.toastMessage,
+    uiStore.isDarkMode,
+    uiStore.currentView,
+    uiStore.showUploadModal,
+    uiStore.showVerifyModal,
+    uiStore.showDetailModal,
+    catalogStore.filteredComponents.length,
+    queueStore.aiQueue.length,
+    uiStore.toastMessage,
   ],
   () => {
     updateIcons()

@@ -2,6 +2,7 @@ package app.harven.partsmanager.controller;
 
 import app.harven.partsmanager.dto.AdjustQuantityDto;
 import app.harven.partsmanager.dto.CreateOrUpdatePartDto;
+import app.harven.partsmanager.dto.DictionaryResponseDto;
 import app.harven.partsmanager.dto.PartResponseDto;
 import app.harven.partsmanager.service.PartService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,12 @@ import reactor.core.publisher.Mono;
 public class PartController {
 
     private final PartService partService;
+
+    @GetMapping("/dictionary")
+    @Operation(summary = "Get list of components with optional search and filters")
+    public Mono<DictionaryResponseDto> getDictionary() {
+        return partService.findAllDictionary();
+    }
 
     @GetMapping
     @Operation(summary = "List components with optional search and filters")

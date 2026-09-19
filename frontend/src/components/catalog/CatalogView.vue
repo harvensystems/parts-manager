@@ -8,14 +8,14 @@
         <div class="relative flex-1">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
           <input 
-            v-model="store.searchQuery" 
+            v-model="catalogStore.searchQuery" 
             type="text" 
             :placeholder="t('catalog.searchPlaceholder')" 
             class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-lg text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition font-mono"
           >
           <button 
-            v-if="store.searchQuery" 
-            @click="store.searchQuery = ''"
+            v-if="catalogStore.searchQuery" 
+            @click="catalogStore.searchQuery = ''"
             class="absolute right-3 top-3 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
           >
             <i data-lucide="x" class="w-4 h-4"></i>
@@ -26,18 +26,18 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:flex gap-2">
           <!-- Type Filter -->
           <select 
-            v-model="store.selectedTypeFilter" 
+            v-model="catalogStore.selectedTypeFilter" 
             class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-lg px-2.5 sm:px-3 py-2 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500"
           >
             <option value="">{{ t('catalog.allTypes') }}</option>
-            <option v-for="tName in store.componentTypes" :key="tName" :value="tName">
+            <option v-for="tName in catalogStore.dictionary.components" :key="tName" :value="tName">
               {{ t(`types.${tName}`) }}
             </option>
           </select>
 
           <!-- Mounting Filter -->
           <select 
-            v-model="store.selectedMountingFilter" 
+            v-model="catalogStore.selectedMountingFilter" 
             class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-lg px-2.5 sm:px-3 py-2 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500"
           >
             <option value="">{{ t('catalog.anyMounting') }}</option>
@@ -47,7 +47,7 @@
 
           <!-- Sort Filter -->
           <select 
-            v-model="store.sortBy" 
+            v-model="catalogStore.sortBy" 
             class="col-span-2 sm:col-span-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-lg px-2.5 sm:px-3 py-2 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500"
           >
             <option value="updatedAt">{{ t('catalog.sortNewest') }}</option>
@@ -58,41 +58,18 @@
       </div>
 
       <button
-          v-if="store.searchQuery || store.selectedTypeFilter || store.selectedMountingFilter"
-          @click="store.clearAllFilters"
+          v-if="catalogStore.searchQuery || catalogStore.selectedTypeFilter || catalogStore.selectedMountingFilter"
+          @click="catalogStore.clearAllFilters"
           class="text-amber-600 dark:text-amber-400 hover:underline ml-auto text-[11px] cursor-pointer"
       >
         {{ t('catalog.clearFilters') }}
       </button>
-
-      <!-- Quick Filter Tags -->
-<!--      <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-200 dark:border-slate-800/60 text-xs">-->
-<!--        <span class="text-slate-500 mr-1 flex items-center gap-1 text-[11px] sm:text-xs">-->
-<!--          <i data-lucide="filter" class="w-3 h-3"></i> {{ t('catalog.quickFilters') }}-->
-<!--        </span>-->
-<!--        <button -->
-<!--          v-for="tag in ['Resistor', 'Capacitor', 'IC', 'Transistor', 'Diode', 'SMD', 'Through-hole', '5V', '10k']" -->
-<!--          :key="tag"-->
-<!--          @click="store.setQuickTag(tag)"-->
-<!--          class="px-2 py-0.5 rounded border text-[11px] sm:text-xs transition cursor-pointer"-->
-<!--          :class="store.searchQuery.includes(tag) || store.selectedTypeFilter === tag || store.selectedMountingFilter === tag ? 'bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-medium' : 'bg-slate-100 dark:bg-slate-900/60 border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400'"-->
-<!--        >-->
-<!--          {{ store.componentTypes.includes(tag) ? t(`types.${tag}`) : tag }}-->
-<!--        </button>-->
-<!--        <button -->
-<!--          v-if="store.searchQuery || store.selectedTypeFilter || store.selectedMountingFilter"-->
-<!--          @click="store.clearAllFilters"-->
-<!--          class="text-amber-600 dark:text-amber-400 hover:underline ml-auto text-[11px] cursor-pointer"-->
-<!--        >-->
-<!--          {{ t('catalog.clearFilters') }}-->
-<!--        </button>-->
-<!--      </div>-->
     </div>
 
     <!-- Catalog Component Grid -->
-    <div v-if="store.filteredComponents.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
+    <div v-if="catalogStore.filteredComponents.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3">
       <ComponentCard 
-        v-for="item in store.filteredComponents" 
+        v-for="item in catalogStore.filteredComponents" 
         :key="item.id" 
         :item="item" 
       />
@@ -108,7 +85,7 @@
         {{ t('catalog.emptyText') }}
       </p>
       <button 
-        @click="store.showUploadModal = true" 
+        @click="uiStore.showUploadModal = true" 
         class="mt-4 sm:mt-5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white dark:text-slate-950 font-semibold text-xs sm:text-sm rounded-lg shadow inline-flex items-center gap-2 transition cursor-pointer"
       >
         <i data-lucide="camera" class="w-4 h-4"></i>
@@ -121,9 +98,11 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useInventoryStore } from '../../stores/inventory'
+import { useUiStore } from '@/stores/ui'
+import { useCatalogStore } from '@/stores/catalog'
 import ComponentCard from './ComponentCard.vue'
 
-const store = useInventoryStore()
+const uiStore = useUiStore()
+const catalogStore = useCatalogStore()
 const { t } = useI18n()
 </script>

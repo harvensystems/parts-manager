@@ -1,5 +1,6 @@
 package app.harven.partsmanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,9 @@ public class PartResponseDto {
     @Builder.Default
     private List<String> photoIds = new ArrayList<>();
     @Builder.Default
-    private Map<String, Object> metadata = new HashMap<>();
+    private Map<String, String> metadata = new HashMap<>();
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant updatedAt;
 }

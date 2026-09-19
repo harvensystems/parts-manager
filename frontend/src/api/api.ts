@@ -10,6 +10,7 @@
  * ---------------------------------------------------------------
  */
 
+/** System application settings DTO */
 export interface AppSettingDto {
   /**
    * Low stock threshold alert quantity
@@ -67,7 +68,7 @@ export interface CreateOrUpdatePartDto {
   quantity: number;
   description?: string;
   photoIds?: string[];
-  metadata?: Record<string, object>;
+  metadata?: Record<string, string>;
 }
 
 export interface PartResponseDto {
@@ -82,7 +83,7 @@ export interface PartResponseDto {
   quantity?: number;
   description?: string;
   photoIds?: string[];
-  metadata?: Record<string, object>;
+  metadata?: Record<string, string>;
   /** @format date-time */
   createdAt?: string;
   /** @format date-time */
@@ -96,6 +97,7 @@ export interface RecognitionTaskResponseDto {
   contentType?: string;
   status?: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   aiResult?: Record<string, object>;
+  part?: PartResponseDto;
   rawText?: string;
   /** @format double */
   confidence?: number;
@@ -146,11 +148,11 @@ export interface PageableObject {
   /** @format int64 */
   offset?: number;
   sort?: SortObject;
-  paged?: boolean;
-  /** @format int32 */
-  pageNumber?: number;
   /** @format int32 */
   pageSize?: number;
+  /** @format int32 */
+  pageNumber?: number;
+  paged?: boolean;
   unpaged?: boolean;
 }
 
@@ -158,6 +160,14 @@ export interface SortObject {
   empty?: boolean;
   sorted?: boolean;
   unsorted?: boolean;
+}
+
+export interface DictionaryResponseDto {
+  manufacturers?: string[];
+  packages?: string[];
+  parameters?: string[];
+  components?: string[];
+  enabledAI?: boolean;
 }
 
 import type {
@@ -347,6 +357,39 @@ export class HttpClient<SecurityDataType = unknown> {
 export class Api<
   SecurityDataType extends unknown,
 > extends HttpClient<SecurityDataType> {
+  settings = {
+    /**
+     * No description
+     *
+     * @tags Settings
+     * @name GetSettings
+     * @summary Get application settings
+     * @request GET:/api/settings
+     */
+    getSettings: (params: RequestParams = {}) =>
+      this.request<AppSettingDto, any>({
+        path: `/api/settings`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Settings
+     * @name UpdateSettings
+     * @summary Update application settings
+     * @request PUT:/api/settings
+     */
+    updateSettings: (data: AppSettingDto, params: RequestParams = {}) =>
+      this.request<AppSettingDto, any>({
+        path: `/api/settings`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
   parts = {
     /**
      * No description
@@ -518,6 +561,21 @@ export class Api<
         query: query,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Parts
+     * @name GetDictionary
+     * @summary Get list of components with optional search and filters
+     * @request GET:/api/parts/dictionary
+     */
+    getDictionary: (params: RequestParams = {}) =>
+      this.request<DictionaryResponseDto, any>({
+        path: `/api/parts/dictionary`,
+        method: "GET",
+        ...params,
+      }),
   };
   recognition = {
     /**
@@ -678,35 +736,6 @@ export class Api<
       this.request<void, any>({
         path: `/api/images/${id}`,
         method: "DELETE",
-        ...params,
-      }),
-  };
-  settings = {
-    /**
-     * @tags Settings
-     * @name GetSettings
-     * @summary Get application settings
-     * @request GET:/api/settings
-     */
-    getSettings: (params: RequestParams = {}) =>
-      this.request<AppSettingDto, any>({
-        path: `/api/settings`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * @tags Settings
-     * @name UpdateSettings
-     * @summary Update application settings
-     * @request PUT:/api/settings
-     */
-    updateSettings: (data: AppSettingDto, params: RequestParams = {}) =>
-      this.request<AppSettingDto, any>({
-        path: `/api/settings`,
-        method: "PUT",
-        body: data,
-        type: ContentType.Json,
         ...params,
       }),
   };

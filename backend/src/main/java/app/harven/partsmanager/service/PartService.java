@@ -2,6 +2,7 @@ package app.harven.partsmanager.service;
 
 import app.harven.partsmanager.domain.Part;
 import app.harven.partsmanager.dto.CreateOrUpdatePartDto;
+import app.harven.partsmanager.dto.DictionaryResponseDto;
 import app.harven.partsmanager.dto.PartResponseDto;
 import app.harven.partsmanager.mapper.DtoMapper;
 import app.harven.partsmanager.repository.PartRepository;
@@ -18,10 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +28,7 @@ public class PartService {
     private final PartRepository partRepository;
     private final ReactiveMongoTemplate mongoTemplate;
     private final DtoMapper dtoMapper;
+    private final Boolean enabledAi;
 
     public Mono<Page<PartResponseDto>> findAll(String search, String type, String mounting, Pageable pageable) {
         Query countQuery = new Query();
@@ -137,7 +136,7 @@ public class PartService {
                         }
 
                         if (dto.getMetadata() != null) {
-                            Map<String, Object> combinedMeta = new HashMap<>(part.getMetadata() != null ? part.getMetadata() : new HashMap<>());
+                            Map<String, String> combinedMeta = new HashMap<>(part.getMetadata() != null ? part.getMetadata() : new HashMap<>());
                             combinedMeta.putAll(dto.getMetadata());
                             part.setMetadata(combinedMeta);
                         }
@@ -205,5 +204,20 @@ public class PartService {
 
     public Mono<Void> deleteById(String id) {
         return partRepository.deleteById(id);
+    }
+
+    public Mono<DictionaryResponseDto> findAllDictionary() {
+        return Mono.zip(
+            partRepository.getAllParams(),
+            partRepository.getPackagesAndManufacturers()
+        )
+                .map(tuple -> {
+                    List<String> staticComponents = List.of("Resistor","Capacitor","IC","Transistor","Diode","LED","Inductor","Connector","Sensor","Module","Other");
+                    return new DictionaryResponseDto(
+                            Arrays.stream(tuple.getT2().getManufacturers()).toList(),
+                            Arrays.stream(tuple.getT2().getPackages()).toList(),
+                            tuple.getT1().getParameters().stream().toList(), staticComponents,
+                            enabledAi);
+                });
     }
 }

@@ -1,6 +1,7 @@
 package app.harven.partsmanager.dto;
 
 import app.harven.partsmanager.domain.RecognitionStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,10 +23,13 @@ public class RecognitionTaskResponseDto {
     private RecognitionStatus status;
     @Builder.Default
     private Map<String, Object> aiResult = new HashMap<>();
+    private PartResponseDto part;
     private String rawText;
     private Double confidence;
     private String errorMessage;
     private Long processingTimeMs;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant completedAt;
 }

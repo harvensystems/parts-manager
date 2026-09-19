@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class DtoMapper {
@@ -54,6 +55,19 @@ public class DtoMapper {
         if (task == null) {
             return null;
         }
+        PartResponseDto part = new PartResponseDto();
+        var ai = task.getAiResult();
+        part.getPhotoIds().add(task.getPhotoId());
+        if (ai.containsKey("name") && ai.get("name") != null) part.setName(ai.get("name").toString());
+        if (ai.containsKey("description") && ai.get("description") != null) part.setDescription(ai.get("description").toString());
+        if (ai.containsKey("mounting") && ai.get("mounting") != null) part.setMounting(ai.get("mounting").toString());
+        if (ai.containsKey("manufacturer") && ai.get("manufacturer") != null) part.setManufacturer(ai.get("manufacturer").toString());
+        if (ai.containsKey("partNumber") && ai.get("partNumber") != null) part.setPartNumber(ai.get("partNumber").toString());
+        if (ai.containsKey("packageType") && ai.get("packageType") != null) part.setPackageType(ai.get("packageType").toString());
+        if (ai.containsKey("quantity") && ai.get("quantity") != null) part.setQuantity(Integer.parseInt(ai.get("quantity").toString()));
+        if (ai.containsKey("type") && ai.get("type") != null) part.setType(ai.get("type").toString());
+        if (ai.containsKey("metadata") && ai.get("metadata") != null) part.setMetadata((Map<String, String>) ai.get("metadata"));
+
         return RecognitionTaskResponseDto.builder()
                 .id(task.getId())
                 .photoId(task.getPhotoId())
@@ -61,6 +75,7 @@ public class DtoMapper {
                 .contentType(task.getContentType())
                 .status(task.getStatus())
                 .aiResult(task.getAiResult() != null ? new HashMap<>(task.getAiResult()) : new HashMap<>())
+                .part(part)
                 .rawText(task.getRawText())
                 .confidence(task.getConfidence())
                 .errorMessage(task.getErrorMessage())
