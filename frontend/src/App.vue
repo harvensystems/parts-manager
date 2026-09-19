@@ -84,7 +84,6 @@ watch(
     uiStore.isDarkMode,
     uiStore.currentView,
     uiStore.showUploadModal,
-    uiStore.showVerifyModal,
     uiStore.showDetailModal,
     catalogStore.filteredComponents.length,
     queueStore.aiQueue.length,

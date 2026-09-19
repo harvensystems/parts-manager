@@ -84,10 +84,10 @@ export interface PartResponseDto {
   description?: string;
   photoIds?: string[];
   metadata?: Record<string, string>;
-  /** @format date-time */
-  createdAt?: string;
-  /** @format date-time */
-  updatedAt?: string;
+  /** @format int32 */
+  createdAt?: number;
+  /** @format int32 */
+  updatedAt?: number;
 }
 
 export interface RecognitionTaskResponseDto {
@@ -104,10 +104,10 @@ export interface RecognitionTaskResponseDto {
   errorMessage?: string;
   /** @format int64 */
   processingTimeMs?: number;
-  /** @format date-time */
-  createdAt?: string;
-  /** @format date-time */
-  completedAt?: string;
+  /** @format int32 */
+  createdAt?: number;
+  /** @format int32 */
+  completedAt?: number;
 }
 
 export interface DataUrlUploadDto {
