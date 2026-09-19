@@ -104,6 +104,7 @@ export const useQueueStore = defineStore('queue', () => {
 
   const openVerifyModalForJob = (job: RecognitionTaskResponseDto) => {
     catalogStore.component = job.part as CreateOrUpdatePartDto
+    uiStore.activeUploadTab = 'manual'
     uiStore.showUploadModal = true
   }
 

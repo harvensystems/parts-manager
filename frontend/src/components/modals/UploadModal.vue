@@ -257,7 +257,9 @@ const initCamera = async () => {
   cameraLoading.value = true
   try {
     mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: true, //{ facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      video: {
+        facingMode: 'environment'
+      }, //{ facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
       audio: false,
     })
     await nextTick()

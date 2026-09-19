@@ -28,14 +28,14 @@ public class AiRecognitionService {
     private final ObjectMapper objectMapper;
     private final ChatClient.Builder chatClientBuilder;
     private final Boolean enabledAi;
-//    @Value("${spring.ai.google.genai.api-key:}")
-//    private String aiApiKey;
+    private final PartService partService;
 
     @Autowired
     public AiRecognitionService(
             RecognitionTaskRepository taskRepository,
             ImageStorageService imageStorageService,
             Boolean enabledAi,
+            PartService partService,
             @Autowired(required = false) ChatClient.Builder chatClientBuilder
     ) {
         this.taskRepository = taskRepository;
@@ -43,6 +43,7 @@ public class AiRecognitionService {
         this.objectMapper = new ObjectMapper();
         this.chatClientBuilder = chatClientBuilder;
         this.enabledAi = enabledAi;
+        this.partService = partService;
     }
 
     public void processTaskAsync(String taskId) {
@@ -84,45 +85,62 @@ public class AiRecognitionService {
     private Mono<Void> processWithSpringAi(RecognitionTask task) {
         return imageStorageService.getImageBytes(task.getPhotoId())
                 .switchIfEmpty(Mono.error(new IllegalStateException("Photo not found in GridFS: " + task.getPhotoId())))
-                .flatMap(imageBytes -> Mono.fromCallable(() -> {
-                    ChatClient chatClient = chatClientBuilder.build();
-                    String prompt = """
-                        You are an expert electronics workshop assistant. Analyze this electronic component or package photo.
-                        Extract details in strictly valid JSON format with this exact schema:
-                        {
-                          "name": "Component name (e.g. Resistor 10k 0805, STM32F103C8T6)",
-                          "type": "Resistor | Capacitor | IC | Transistor | Diode | LED | Inductor | Connector | Sensor | Module | Other",
-                          "manufacturer": "Manufacturer name or null",
-                          "partNumber": "Part number or marking or null",
-                          "packageType": "Package name (e.g. 0805, DIP-8, TO-220, LQFP-48) or null",
-                          "mounting": "SMD or Through-hole or null",
-                          "quantity": number or 1,
-                          "description": "Short description or notes",
-                          "metadata": {
-                             // dynamic key-value pairs appropriate for this component type (e.g. resistance: "10 kΩ", voltage: "25 V")
-                          },
-                          "confidence": 95.0,
-                          "rawText": "Exact text visible on package/marking"
-                        }
-                        Do not guess values that cannot be identified from the image. Return only the JSON object.
-                    """.stripIndent();
+                .flatMap(imageBytes ->
+                        partService.findAllDictionary().flatMap(dictionaryResponseDto ->
+                                Mono.fromCallable(() -> {
+                                    ChatClient chatClient = chatClientBuilder.build();
+                                    String knownTypes = String.join(", ", dictionaryResponseDto.getComponents() != null ? dictionaryResponseDto.getComponents() : java.util.List.of());
+                                    String knownManufacturers = String.join(", ", dictionaryResponseDto.getManufacturers() != null ? dictionaryResponseDto.getManufacturers() : java.util.List.of());
+                                    String knownPackages = String.join(", ", dictionaryResponseDto.getPackages() != null ? dictionaryResponseDto.getPackages() : java.util.List.of());
+                                    String knownParameters = String.join(", ", dictionaryResponseDto.getParameters() != null ? dictionaryResponseDto.getParameters() : java.util.List.of());
 
-                    AiResponseEntity response = chatClient.prompt()
-                            .user(u ->
-                                    u.text(prompt)
-                                            .media(MimeTypeUtils.parseMimeType(task.getContentType() != null ? task.getContentType() : "image/jpeg"), new ByteArrayResource(imageBytes)))
-                            .call()
-                            .entity(AiResponseEntity.class);
+                                    String prompt = String.format("""
+                                                You are an expert electronics workshop assistant. Analyze this electronic component or package photo.
+                                                Extract details in strictly valid JSON format with this exact schema:
+                                                {
+                                                  "name": "Component name (e.g. Resistor 10k 0805, STM32F103C8T6)",
+                                                  "type": "Resistor | Capacitor | IC ....",
+                                                  "manufacturer": "Manufacturer name or null",
+                                                  "partNumber": "Part number or marking or null",
+                                                  "packageType": "Package name (e.g. 0805, DIP-8, TO-220, LQFP-48) or null",
+                                                  "mounting": "SMD or Through-hole or null",
+                                                  "quantity": number or 1,
+                                                  "description": "Short description or notes",
+                                                  "metadata": {
+                                                     // dynamic key-value pairs appropriate for this component type (e.g. resistance: "10 kΩ", voltage: "25 V")
+                                                  },
+                                                  "confidence": 95.0,
+                                                  "rawText": "Exact text visible on package/marking"
+                                                }
 
-                    if (response != null) {
-                        task.setAiResult(objectMapper.readValue(objectMapper.writeValueAsString(response), new TypeReference<Map<String, Object>>() {}));
-                        task.setRawText(response.getRawText());
-                        task.setConfidence(response.getConfidence());
-                    } else {
-                        throw new RuntimeException("Empty response from AI");
-                    }
-                    return null;
-                }));
+                                                Dictionary matching rules:
+                                                - For "type", prioritize selecting a matching value from known types: [%s]. If none match or apply, specify your own unique type.
+                                                - For "manufacturer", prioritize selecting a matching name from known manufacturers: [%s]. If not in the list, specify your own unique manufacturer or null.
+                                                - For "packageType", prioritize selecting a matching package from known packages: [%s]. If not in the list, specify your own unique package or null.
+                                                - For keys in "metadata", prioritize using parameter names from known parameters: [%s] when applicable. If a parameter is not in the list, define your own unique metadata key.
+
+                                                Do not guess values that cannot be identified from the image. Return only the JSON object.
+                                            """.stripIndent(), knownTypes, knownManufacturers, knownPackages, knownParameters);
+
+                                    AiResponseEntity response = chatClient.prompt()
+                                            .user(u ->
+                                                    u.text(prompt)
+                                                            .media(MimeTypeUtils.parseMimeType(task.getContentType() != null ? task.getContentType() : "image/jpeg"), new ByteArrayResource(imageBytes)))
+                                            .call()
+                                            .entity(AiResponseEntity.class);
+
+                                    if (response != null) {
+                                        task.setAiResult(objectMapper.readValue(objectMapper.writeValueAsString(response), new TypeReference<Map<String, Object>>() {
+                                        }));
+                                        task.setRawText(response.getRawText());
+                                        task.setConfidence(response.getConfidence());
+                                    } else {
+                                        throw new RuntimeException("Empty response from AI");
+                                    }
+                                    return null;
+                                })
+                        )
+                );
     }
 
     private void processSimulated(RecognitionTask task) {

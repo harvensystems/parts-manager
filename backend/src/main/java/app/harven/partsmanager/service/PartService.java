@@ -1,6 +1,8 @@
 package app.harven.partsmanager.service;
 
 import app.harven.partsmanager.domain.Part;
+import app.harven.partsmanager.domain.PartDictionaries;
+import app.harven.partsmanager.domain.PartParams;
 import app.harven.partsmanager.dto.CreateOrUpdatePartDto;
 import app.harven.partsmanager.dto.DictionaryResponseDto;
 import app.harven.partsmanager.dto.PartResponseDto;
@@ -208,14 +210,14 @@ public class PartService {
 
     public Mono<DictionaryResponseDto> findAllDictionary() {
         return Mono.zip(
-            partRepository.getAllParams(),
-            partRepository.getPackagesAndManufacturers()
+            partRepository.getAllParams().defaultIfEmpty(new PartParams(List.of())),
+            partRepository.getPackagesAndManufacturers().defaultIfEmpty(new PartDictionaries(List.of(), List.of()))
         )
                 .map(tuple -> {
                     List<String> staticComponents = List.of("Resistor","Capacitor","IC","Transistor","Diode","LED","Inductor","Connector","Sensor","Module","Other");
                     return new DictionaryResponseDto(
-                            Arrays.stream(tuple.getT2().getManufacturers()).toList(),
-                            Arrays.stream(tuple.getT2().getPackages()).toList(),
+                            tuple.getT2().getManufacturers(),
+                            tuple.getT2().getPackages(),
                             tuple.getT1().getParameters().stream().toList(), staticComponents,
                             enabledAi);
                 });

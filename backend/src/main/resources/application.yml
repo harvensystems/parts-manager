@@ -13,9 +13,6 @@ spring:
         chat:
           options:
             model: gemini-3.6-flash
-  webflux:
-    format:
-      date: iso
 
 server:
   port: 8080
