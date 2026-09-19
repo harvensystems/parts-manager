@@ -49,6 +49,8 @@ export const useCatalogStore = defineStore('catalog', () => {
         const basicMatch =
           item.name?.toLowerCase().includes(q) ||
           item.partNumber?.toLowerCase().includes(q) ||
+          item.partCode?.toLowerCase().includes(q) ||
+          item.location?.toLowerCase().includes(q) ||
           item.type?.toLowerCase().includes(q) ||
           item.manufacturer?.toLowerCase().includes(q) ||
           item.packageType?.toLowerCase().includes(q) ||
@@ -159,6 +161,7 @@ export const useCatalogStore = defineStore('catalog', () => {
         components.value.unshift(res)
         uiStore.showToast(t('toast.partAdded', { name: res.name }))
       }
+      fetchDictionary()
     } catch (err: any) {
       console.error('Save component error:', err)
     }

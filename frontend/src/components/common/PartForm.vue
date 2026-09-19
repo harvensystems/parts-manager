@@ -3,7 +3,7 @@
 import SelectField from '@/components/SelectField.vue'
 import { useCatalogStore } from '@/stores/catalog'
 import { useI18n } from 'vue-i18n'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { CreateOrUpdatePartDto } from '@/api/api.ts'
 
 const model = defineModel<{ dto: CreateOrUpdatePartDto, file: File | null }>()
@@ -13,6 +13,18 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const params = ref<{ key: string, value: string }[]>(model.value?.dto.metadata ? Object.entries(model.value.dto.metadata).map(([key, value]) => ({ key, value })) : [])
 const preview = ref<string>('')
+
+onMounted(() => {
+  if (model.value?.dto && !model.value.dto.partCode && catalogStore.dictionary.nextPartCode) {
+    model.value.dto.partCode = catalogStore.dictionary.nextPartCode
+  }
+})
+
+watch(() => catalogStore.dictionary.nextPartCode, (nextCode) => {
+  if (model.value?.dto && !model.value.dto.partCode && nextCode) {
+    model.value.dto.partCode = nextCode
+  }
+})
 
 const addParams = () => params.value.push({ key: '', value: '' })
 const removeParams = (idx: number) => params.value.splice(idx, 1)
@@ -150,6 +162,22 @@ const removeImage = () => {
       <SelectField v-model="model!.dto.packageType" :label="t('verifyModal.package')"
                    :items="catalogStore.dictionary.packages!!" :placeholder="t('verifyModal.packagePlaceholder')" />
 
+      <!-- Location (Storage) -->
+      <SelectField v-model="model!.dto.location" :label="t('verifyModal.location')"
+                   :items="catalogStore.dictionary.locations || []"
+                   :placeholder="t('verifyModal.locationPlaceholder')" />
+
+      <!-- Part Code / UID -->
+      <div class="space-y-1">
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">{{ t('verifyModal.partCode') }}</label>
+        <input
+          v-model="model!.dto.partCode"
+          type="text"
+          :placeholder="t('verifyModal.partCodePlaceholder')"
+          class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+        >
+      </div>
+
       <!-- Mounting Type -->
       <div class="space-y-1">
         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">{{ t('verifyModal.mountingType')
@@ -194,7 +222,7 @@ const removeImage = () => {
           >
           <button
             type="button"
-            @click="model!.dto.quantity !!= (model?.dto.quantity || 1) + 1"
+            @click="model!.dto.quantity = (model?.dto.quantity || 1) + 1"
             class="w-9 h-9 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 text-slate-800 dark:text-white font-bold rounded-lg transition cursor-pointer flex items-center justify-center text-sm"
           >
             +

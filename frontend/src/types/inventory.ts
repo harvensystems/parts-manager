@@ -4,6 +4,8 @@ export interface ComponentItem {
   type: string
   manufacturer?: string
   partNumber?: string
+  partCode?: string
+  location?: string
   package?: string
   mounting?: 'SMD' | 'Through-hole' | string
   quantity: number

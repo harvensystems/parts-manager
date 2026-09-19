@@ -62,6 +62,8 @@ export interface CreateOrUpdatePartDto {
   type?: string;
   manufacturer?: string;
   partNumber?: string;
+  partCode?: string;
+  location?: string;
   packageType?: string;
   mounting?: string;
   /** @format int32 */
@@ -77,6 +79,8 @@ export interface PartResponseDto {
   type?: string;
   manufacturer?: string;
   partNumber?: string;
+  partCode?: string;
+  location?: string;
   packageType?: string;
   mounting?: string;
   /** @format int32 */
@@ -167,6 +171,8 @@ export interface DictionaryResponseDto {
   packages?: string[];
   parameters?: string[];
   components?: string[];
+  locations?: string[];
+  nextPartCode?: string;
   enabledAI?: boolean;
 }
 

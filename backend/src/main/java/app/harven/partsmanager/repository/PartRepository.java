@@ -26,6 +26,7 @@ public interface PartRepository extends ReactiveMongoRepository<Part, String> {
             "{ $group: { " +
             "_id: null, " +
             "packages: { $addToSet: \"$packageType\" }, " +
-            "manufacturers: { $addToSet: \"$manufacturer\" } } }"})
+            "manufacturers: { $addToSet: \"$manufacturer\" }, " +
+            "locations: { $addToSet: \"$location\" } } }"})
     Mono<PartDictionaries> getPackagesAndManufacturers();
 }

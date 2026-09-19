@@ -24,6 +24,8 @@ public class CreateOrUpdatePartDto {
     private String type;
     private String manufacturer;
     private String partNumber;
+    private String partCode;
+    private String location;
     private String packageType;
     private String mounting;
 

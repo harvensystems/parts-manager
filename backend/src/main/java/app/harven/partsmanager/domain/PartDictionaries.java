@@ -12,4 +12,5 @@ import java.util.List;
 public class PartDictionaries {
     private List<String> packages;
     private List<String> manufacturers;
+    private List<String> locations;
 }

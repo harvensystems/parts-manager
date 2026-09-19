@@ -63,7 +63,10 @@
     "statusProcessing": "Обробка AI...",
     "statusCompleted": "Розпізнано",
     "statusFailed": "Помилка",
-    "statusPending": "Очікує"
+    "statusPending": "Очікує",
+    "aiDisabledTitle": "AI-розпізнавання вимкнено",
+    "aiDisabledText": "Для автоматичного розпізнавання деталей необхідно налаштувати AI_API_KEY на сервері або вказати власний API-ключ у налаштуваннях додатку.",
+    "goToSettings": "Перейти до налаштувань"
   },
   "uploadModal": {
     "title": "Додати нову деталь",
@@ -95,6 +98,10 @@
     "partName": "Назва деталі *",
     "namePlaceholder": "напр. Резистор 10 кОм 0805",
     "componentType": "Тип компонента *",
+    "partCode": "Унікальний номер (UID)",
+    "partCodePlaceholder": "напр. #1, #2...",
+    "location": "Розташування (ящик / коробка)",
+    "locationPlaceholder": "напр. ящик1, коробка5...",
     "partNumber": "Part Number / Маркування",
     "partNumberPlaceholder": "напр. LM7805, RC0805FR...",
     "manufacturer": "Виробник",
@@ -117,6 +124,8 @@
     "title": "Картка деталі",
     "pcs": "шт.",
     "manufacturer": "Виробник:",
+    "location": "Розташування:",
+    "partCode": "UID:",
     "notSpecified": "Не вказано",
     "description": "Опис",
     "metadataTitle": "Характеристики (Metadata)",

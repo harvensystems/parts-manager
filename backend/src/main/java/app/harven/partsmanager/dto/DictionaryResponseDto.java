@@ -14,5 +14,7 @@ public class DictionaryResponseDto {
     private List<String> packages;
     private List<String> parameters;
     private List<String> components;
+    private List<String> locations;
+    private String nextPartCode;
     private Boolean enabledAI;
 }

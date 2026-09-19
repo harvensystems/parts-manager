@@ -10,6 +10,9 @@
       >
       <!-- Overlay Badges -->
       <div class="absolute top-1.5 left-1.5 flex flex-wrap gap-1">
+        <span v-if="item.partCode" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold shadow bg-emerald-600 text-white border border-emerald-400 backdrop-blur-sm">
+          {{ item.partCode }}
+        </span>
         <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wide uppercase shadow bg-white/90 dark:bg-slate-900/80 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 backdrop-blur-sm">
           {{ t(`types.${item.type}`) }}
         </span>
@@ -45,8 +48,11 @@
         <h3 class="font-bold text-slate-900 dark:text-white text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition line-clamp-1" :title="item.name">
           {{ item.name }}
         </h3>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
-          <span class="text-slate-700 dark:text-slate-300">{{ item.manufacturer || t('catalog.noBrand') }}</span>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 flex items-center justify-between">
+          <span class="text-slate-700 dark:text-slate-300 truncate">{{ item.manufacturer || t('catalog.noBrand') }}</span>
+          <span v-if="item.location" class="text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1 py-0.2 rounded font-mono text-[9px] shrink-0 border border-emerald-200 dark:border-emerald-800/50">
+            {{ item.location }}
+          </span>
         </p>
       </div>
 

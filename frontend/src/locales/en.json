@@ -63,7 +63,10 @@
     "statusProcessing": "AI Processing...",
     "statusCompleted": "Recognized",
     "statusFailed": "Failed",
-    "statusPending": "Pending"
+    "statusPending": "Pending",
+    "aiDisabledTitle": "AI Recognition Disabled",
+    "aiDisabledText": "To enable automatic electronic component recognition, set AI_API_KEY on the server or configure a custom API key in application settings.",
+    "goToSettings": "Go to Settings"
   },
   "uploadModal": {
     "title": "Add New Part",
@@ -95,6 +98,10 @@
     "partName": "Part Name *",
     "namePlaceholder": "e.g. Resistor 10 kOhm 0805",
     "componentType": "Component Type *",
+    "partCode": "Unique Code (UID)",
+    "partCodePlaceholder": "e.g. #1, #2...",
+    "location": "Location (drawer / box)",
+    "locationPlaceholder": "e.g. drawer1, box5...",
     "partNumber": "Part Number / Marking",
     "partNumberPlaceholder": "e.g. LM7805, RC0805FR...",
     "manufacturer": "Manufacturer",
@@ -117,6 +124,8 @@
     "title": "Part Details",
     "pcs": "pcs",
     "manufacturer": "Manufacturer:",
+    "location": "Location:",
+    "partCode": "UID:",
     "notSpecified": "Not specified",
     "description": "Description",
     "metadataTitle": "Parameters (Metadata)",

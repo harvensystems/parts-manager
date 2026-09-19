@@ -40,6 +40,8 @@ public class DtoMapper {
                 .type(part.getType())
                 .manufacturer(part.getManufacturer())
                 .partNumber(part.getPartNumber())
+                .partCode(part.getPartCode())
+                .location(part.getLocation())
                 .packageType(part.getPackageType())
                 .mounting(part.getMounting())
                 .quantity(part.getQuantity())

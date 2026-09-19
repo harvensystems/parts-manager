@@ -45,12 +45,22 @@
         </div>
       </div>
 
-      <!-- Component Name & Manufacturer -->
+      <!-- Component Name & Manufacturer & Location -->
       <div>
-        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">{{ catalogStore.selectedComponent.name }}</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-          {{ t('detailModal.manufacturer') }} <strong class="text-slate-700 dark:text-slate-200">{{ catalogStore.selectedComponent.manufacturer || t('detailModal.notSpecified') }}</strong>
-        </p>
+        <div class="flex items-center gap-2">
+          <span v-if="catalogStore.selectedComponent.partCode" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-600 text-white border border-emerald-400">
+            {{ catalogStore.selectedComponent.partCode }}
+          </span>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">{{ catalogStore.selectedComponent.name }}</h2>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">
+          <p>
+            {{ t('detailModal.manufacturer') }} <strong class="text-slate-700 dark:text-slate-200">{{ catalogStore.selectedComponent.manufacturer || t('detailModal.notSpecified') }}</strong>
+          </p>
+          <p v-if="catalogStore.selectedComponent.location">
+            {{ t('detailModal.location') }} <strong class="text-emerald-600 dark:text-emerald-400">{{ catalogStore.selectedComponent.location }}</strong>
+          </p>
+        </div>
       </div>
 
       <!-- Image Display -->

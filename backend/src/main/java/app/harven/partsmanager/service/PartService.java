@@ -89,6 +89,8 @@ public class PartService {
             Criteria textOrRegex = new Criteria().orOperator(
                     Criteria.where("name").regex(q, "i"),
                     Criteria.where("partNumber").regex(q, "i"),
+                    Criteria.where("partCode").regex(q, "i"),
+                    Criteria.where("location").regex(q, "i"),
                     Criteria.where("manufacturer").regex(q, "i"),
                     Criteria.where("type").regex(q, "i"),
                     Criteria.where("packageType").regex(q, "i"),
@@ -123,6 +125,8 @@ public class PartService {
                         if (dto.getName() != null) part.setName(dto.getName());
                         if (dto.getType() != null) part.setType(dto.getType());
                         if (dto.getManufacturer() != null) part.setManufacturer(dto.getManufacturer());
+                        if (dto.getPartCode() != null && !dto.getPartCode().trim().isEmpty()) part.setPartCode(dto.getPartCode().trim());
+                        if (dto.getLocation() != null && !dto.getLocation().trim().isEmpty()) part.setLocation(dto.getLocation().trim());
                         if (dto.getPackageType() != null) part.setPackageType(dto.getPackageType());
                         if (dto.getMounting() != null) part.setMounting(dto.getMounting());
                         if (dto.getDescription() != null) part.setDescription(dto.getDescription());
@@ -155,22 +159,37 @@ public class PartService {
     }
 
     private Mono<Part> createNewPart(CreateOrUpdatePartDto dto) {
-        Part part = Part.builder()
-                .name(dto.getName() != null ? dto.getName() : "Unknown component")
-                .type(dto.getType() != null ? dto.getType() : "Other")
-                .manufacturer(dto.getManufacturer())
-                .partNumber(dto.getPartNumber())
-                .packageType(dto.getPackageType())
-                .mounting(dto.getMounting() != null ? dto.getMounting() : "SMD")
-                .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
-                .description(dto.getDescription())
-                .photoIds(dto.getPhotoIds() != null ? dto.getPhotoIds() : new ArrayList<>())
-                .metadata(dto.getMetadata() != null ? dto.getMetadata() : new HashMap<>())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+        Mono<String> partCodeMono;
+        if (dto.getPartCode() != null && !dto.getPartCode().trim().isEmpty()) {
+            partCodeMono = Mono.just(dto.getPartCode().trim());
+        } else {
+            partCodeMono = generateNextPartCode();
+        }
 
-        return partRepository.save(part);
+        return partCodeMono.flatMap(code -> {
+            Part part = Part.builder()
+                    .name(dto.getName() != null ? dto.getName() : "Unknown component")
+                    .type(dto.getType() != null ? dto.getType() : "Other")
+                    .manufacturer(dto.getManufacturer())
+                    .partNumber(dto.getPartNumber())
+                    .partCode(code)
+                    .location(dto.getLocation() != null ? dto.getLocation().trim() : null)
+                    .packageType(dto.getPackageType())
+                    .mounting(dto.getMounting() != null ? dto.getMounting() : "SMD")
+                    .quantity(dto.getQuantity() != null ? dto.getQuantity() : 1)
+                    .description(dto.getDescription())
+                    .photoIds(dto.getPhotoIds() != null ? dto.getPhotoIds() : new ArrayList<>())
+                    .metadata(dto.getMetadata() != null ? dto.getMetadata() : new HashMap<>())
+                    .createdAt(Instant.now())
+                    .updatedAt(Instant.now())
+                    .build();
+
+            return partRepository.save(part);
+        });
+    }
+
+    public Mono<String> generateNextPartCode() {
+        return partRepository.count().map(count -> "#" + (count + 1));
     }
 
     public Mono<PartResponseDto> updatePart(String id, CreateOrUpdatePartDto dto) {
@@ -179,6 +198,10 @@ public class PartService {
             part.setType(dto.getType());
             part.setManufacturer(dto.getManufacturer());
             part.setPartNumber(dto.getPartNumber());
+            if (dto.getPartCode() != null && !dto.getPartCode().trim().isEmpty()) {
+                part.setPartCode(dto.getPartCode().trim());
+            }
+            part.setLocation(dto.getLocation() != null ? dto.getLocation().trim() : null);
             part.setPackageType(dto.getPackageType());
             part.setMounting(dto.getMounting());
             part.setQuantity(dto.getQuantity());
@@ -211,14 +234,19 @@ public class PartService {
     public Mono<DictionaryResponseDto> findAllDictionary() {
         return Mono.zip(
             partRepository.getAllParams().defaultIfEmpty(new PartParams(List.of())),
-            partRepository.getPackagesAndManufacturers().defaultIfEmpty(new PartDictionaries(List.of(), List.of()))
+            partRepository.getPackagesAndManufacturers().defaultIfEmpty(new PartDictionaries(List.of(), List.of(), List.of())),
+            generateNextPartCode()
         )
                 .map(tuple -> {
                     List<String> staticComponents = List.of("Resistor","Capacitor","IC","Transistor","Diode","LED","Inductor","Connector","Sensor","Module","Other");
+                    List<String> locations = tuple.getT2().getLocations() != null ? tuple.getT2().getLocations().stream().filter(Objects::nonNull).filter(s -> !s.isBlank()).toList() : List.of();
                     return new DictionaryResponseDto(
                             tuple.getT2().getManufacturers(),
                             tuple.getT2().getPackages(),
-                            tuple.getT1().getParameters().stream().toList(), staticComponents,
+                            tuple.getT1().getParameters().stream().toList(),
+                            staticComponents,
+                            locations,
+                            tuple.getT3(),
                             enabledAi);
                 });
     }

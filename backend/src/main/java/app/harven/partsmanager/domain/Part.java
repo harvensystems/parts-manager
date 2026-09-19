@@ -38,6 +38,12 @@ public class Part {
     @TextIndexed(weight = 3)
     private String partNumber;
 
+    @TextIndexed(weight = 3)
+    private String partCode;
+
+    @TextIndexed
+    private String location;
+
     @TextIndexed
     private String packageType;
 

@@ -7,7 +7,7 @@
         class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group"
       >
         <div class="p-1.5 sm:p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-lg shadow-inner group-hover:scale-105 transition">
-          <i data-lucide="cpu" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          <img src="/logo.png" class="w-5 h-5 sm:w-6 sm:h-6" alt="Parts manager" />
         </div>
         <div>
           <h1 class="font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
