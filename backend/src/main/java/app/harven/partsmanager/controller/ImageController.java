@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -43,14 +45,12 @@ public class ImageController {
     Mono<Void> getImage(@Parameter(description = "Image ID in GridFS")
                                                  @PathVariable("id") String id, ServerWebExchange exchange) {
 
-        return imageStorageService.getImageResource(id)
+        return imageStorageService.getImageBytes(id)
                 .flatMap(resource -> {
                     MediaType mediaType = MediaType.IMAGE_JPEG;
-                    return resource.getGridFSFile()
-                            .flatMap(file -> {
-                                exchange.getResponse().getHeaders().setContentType(mediaType);
-                                return exchange.getResponse().writeWith(resource.getContent());
-                    });
+
+                    exchange.getResponse().getHeaders().setContentType(mediaType);
+                    return exchange.getResponse().writeWith(Flux.just(new DefaultDataBufferFactory().wrap(resource)));
                 });
     }
 

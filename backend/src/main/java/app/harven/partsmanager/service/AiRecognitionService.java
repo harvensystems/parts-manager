@@ -85,6 +85,7 @@ public class AiRecognitionService {
     private Mono<Void> processWithSpringAi(RecognitionTask task) {
         return imageStorageService.getImageBytes(task.getPhotoId())
                 .switchIfEmpty(Mono.error(new IllegalStateException("Photo not found in GridFS: " + task.getPhotoId())))
+                .map(imageBytes -> imageStorageService.normalizeImage(imageBytes, 1024, 1024))
                 .flatMap(imageBytes ->
                         partService.findAllDictionary().flatMap(dictionaryResponseDto ->
                                 Mono.fromCallable(() -> {
