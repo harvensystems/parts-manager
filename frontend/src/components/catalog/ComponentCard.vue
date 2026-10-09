@@ -29,7 +29,7 @@
       <div class="absolute top-1.5 right-1.5">
         <span 
           class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold shadow-lg backdrop-blur-md flex items-center gap-1 border"
-          :class="(item.quantity ?? 0) > settingsStore.lowStockThreshold ? 'bg-white/95 dark:bg-slate-950/90 text-slate-800 dark:text-white border-slate-300 dark:border-slate-700' : 'bg-rose-100/95 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800 animate-pulse'"
+          :class="(item.quantity ?? 0) > (settingsStore.settings?.lowStockThreshold ?? 0) ? 'bg-white/95 dark:bg-slate-950/90 text-slate-800 dark:text-white border-slate-300 dark:border-slate-700' : 'bg-rose-100/95 dark:bg-rose-950/90 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800 animate-pulse'"
         >
           {{ item.quantity }} {{ t('catalog.pcs') }}
         </span>
