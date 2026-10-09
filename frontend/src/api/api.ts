@@ -68,6 +68,7 @@ export interface CreateOrUpdatePartDto {
   mounting?: string;
   /** @format int32 */
   quantity: number;
+  fromTaskId?: string;
   description?: string;
   photoIds?: string[];
   metadata?: Record<string, string>;
@@ -134,14 +135,14 @@ export interface PagePartResponseDto {
   totalElements?: number;
   /** @format int32 */
   totalPages?: number;
+  first?: boolean;
+  last?: boolean;
   /** @format int32 */
   size?: number;
   content?: PartResponseDto[];
   /** @format int32 */
   number?: number;
   sort?: SortObject;
-  first?: boolean;
-  last?: boolean;
   /** @format int32 */
   numberOfElements?: number;
   pageable?: PageableObject;
@@ -152,11 +153,11 @@ export interface PageableObject {
   /** @format int64 */
   offset?: number;
   sort?: SortObject;
-  /** @format int32 */
-  pageSize?: number;
+  paged?: boolean;
   /** @format int32 */
   pageNumber?: number;
-  paged?: boolean;
+  /** @format int32 */
+  pageSize?: number;
   unpaged?: boolean;
 }
 

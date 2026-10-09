@@ -33,6 +33,8 @@ public class CreateOrUpdatePartDto {
     @Builder.Default
     private Integer quantity = 1;
 
+    private String fromTaskId;
+
     private String description;
     @Builder.Default
     private List<String> photoIds = new ArrayList<>();

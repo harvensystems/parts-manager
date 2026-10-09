@@ -8,6 +8,7 @@ import app.harven.partsmanager.dto.DictionaryResponseDto;
 import app.harven.partsmanager.dto.PartResponseDto;
 import app.harven.partsmanager.mapper.DtoMapper;
 import app.harven.partsmanager.repository.PartRepository;
+import app.harven.partsmanager.repository.RecognitionTaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,6 +32,9 @@ public class PartService {
     private final ReactiveMongoTemplate mongoTemplate;
     private final DtoMapper dtoMapper;
     private final Boolean enabledAi;
+    private final AppSettingService appSettingService;
+    private final ImageStorageService imageStorageService;
+    private final RecognitionTaskRepository recognitionTaskRepository;
 
     public Mono<Page<PartResponseDto>> findAll(String search, String type, String mounting, Pageable pageable) {
         Query countQuery = new Query();
@@ -147,8 +151,8 @@ public class PartService {
                             part.setMetadata(combinedMeta);
                         }
 
-                        part.setUpdatedAt(Instant.now());
-                        return partRepository.save(part);
+                        return partRepository.save(part)
+                                .flatMap(p -> deleteRecognizedTask(dto.getFromTaskId()).thenReturn(p));
                     })
                     .switchIfEmpty(Mono.defer(() -> createNewPart(dto)))
                     .map(dtoMapper::toPartResponseDto);
@@ -156,6 +160,13 @@ public class PartService {
 
         return createNewPart(dto)
                 .map(dtoMapper::toPartResponseDto);
+    }
+
+    private Mono<Void> deleteRecognizedTask(String taskId) {
+        if (taskId == null)
+            return Mono.empty();
+        return recognitionTaskRepository.deleteById(taskId)
+                .then();
     }
 
     private Mono<Part> createNewPart(CreateOrUpdatePartDto dto) {
@@ -180,12 +191,19 @@ public class PartService {
                     .description(dto.getDescription())
                     .photoIds(dto.getPhotoIds() != null ? dto.getPhotoIds() : new ArrayList<>())
                     .metadata(dto.getMetadata() != null ? dto.getMetadata() : new HashMap<>())
-                    .createdAt(Instant.now())
-                    .updatedAt(Instant.now())
                     .build();
 
             return partRepository.save(part);
-        });
+        }).flatMap(part -> {
+            return appSettingService.getSettings()
+                    .flatMap(settings -> {
+                        if (settings.getImageQuality() < 100) {
+                            return imageStorageService.optimizeImage(dto.getPhotoIds(), 800, 600, settings.getImageQuality() / 100f).thenReturn(part);
+                        } else {
+                            return Mono.just(part);
+                        }
+            });
+        }).flatMap(p -> deleteRecognizedTask(dto.getFromTaskId()).thenReturn(p));
     }
 
     public Mono<String> generateNextPartCode() {

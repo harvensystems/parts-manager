@@ -15,17 +15,15 @@ import java.util.Map;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "media")
 public class Media {
     @Id
     private String id;
 
-    @Builder.Default
     private String fileName;
 
-    @Builder.Default
     private String contentType;
 
     @Builder.Default
@@ -33,7 +31,6 @@ public class Media {
 
     private Map<String, Object> metadata = new HashMap<>();
 
-    @Builder.Default
     byte[] data;
 
     @CreatedDate

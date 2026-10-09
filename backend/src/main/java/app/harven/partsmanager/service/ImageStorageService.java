@@ -23,13 +23,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageStorageService {
 
-    private final ReactiveGridFsTemplate gridFsTemplate;
     private final MediaRepository mediaRepository;
 
     private Mono<byte[]> convertFilePartToByteArray(FilePart filePart) {
@@ -83,7 +83,7 @@ public class ImageStorageService {
         return mediaRepository.deleteById(imageId);
     }
 
-    public byte[] normalizeImage(byte[] image, int width, int height) {
+    public byte[] normalizeImage(byte[] image, int width, int height, Float quality) {
         if (image == null || image.length == 0) {
             return image;
         }
@@ -96,7 +96,7 @@ public class ImageStorageService {
             Thumbnails.of(input)
                     .size(width, height)             // max size
                     .outputFormat("jpg")             // format ("jpg", "png"...)
-                    .outputQuality(0.85)             // quality (from 0.0 to 1.0)
+                    .outputQuality(quality != null ? quality : 0.85f)             // quality (from 0.0 to 1.0)
                     .toOutputStream(output);
             return output.toByteArray();
         } catch (IOException e) {
@@ -106,13 +106,20 @@ public class ImageStorageService {
     }
 
     //TODO resave image with optimized quality
-    public Mono<Void> optimizeImage(String imageId, int width, int height) {
+    public Mono<Void> optimizeImage(String imageId, int width, int height, Float quality) {
         return mediaRepository.findById(imageId)
                 .flatMap(media -> {
-                    byte[] normalizedImage = normalizeImage(media.getData(), width, height);
+                    byte[] normalizedImage = normalizeImage(media.getData(), width, height, quality);
                     media.setData(normalizedImage);
+                    media.setSize(normalizedImage.length);
                     return mediaRepository.save(media);
                 })
+                .then();
+    }
+
+    public Mono<Void> optimizeImage(List<String> imageIds, int width, int height, Float quality) {
+        return Flux.fromIterable(imageIds)
+                .flatMap(imageId -> optimizeImage(imageId, width, height, quality))
                 .then();
     }
 }
