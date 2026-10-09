@@ -214,15 +214,11 @@
             <label class="block text-xs font-semibold text-slate-800 dark:text-slate-200">
               {{ t('settings.aiProvider') }}
             </label>
-            <select
+            <input
               v-model="localAiProvider"
-              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+              :placeholder="t('settings.customApiKeyPlaceholder')"
+              class="w-full pl-3 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono text-xs focus:outline-none focus:border-emerald-500"
             >
-              <option value="gemini">Google Gemini Flash (Default)</option>
-              <option value="openai">OpenAI (GPT-4o Vision)</option>
-              <option value="anthropic">Anthropic Claude 3.5 Sonnet</option>
-              <option value="ollama">Local Ollama / LLaVA Vision</option>
-            </select>
             <p class="text-[11px] text-slate-500 dark:text-slate-500">{{ t('settings.aiProviderHelp') }}</p>
           </div>
 
@@ -298,30 +294,25 @@ const { t, locale } = useI18n()
 
 const showApiKey = ref(false)
 
-const localLowStock = ref(settingsStore.lowStockThreshold)
-const localImageQuality = ref(settingsStore.imageQuality)
-const localDefaultPageSize = ref(settingsStore.defaultPageSize)
-const localAutoProcess = ref(settingsStore.autoProcessAi)
-const localAiProvider = ref(settingsStore.aiProvider)
-const localApiKey = ref(settingsStore.customApiKey)
+const localLowStock = ref(settingsStore.settings.lowStockThreshold ?? 3)
+const localImageQuality = ref(settingsStore.settings.imageQuality ?? 80)
+const localDefaultPageSize = ref(settingsStore.settings.defaultPageSize ?? 100)
+const localAutoProcess = ref(settingsStore.settings.autoProcessAi ?? false)
+const localAiProvider = ref(settingsStore.settings.aiProvider ?? 'gemini')
+const localApiKey = ref(settingsStore.settings.customApiKey ?? '')
 
 const syncLocalFromStore = () => {
-  localLowStock.value = settingsStore.lowStockThreshold
-  localImageQuality.value = settingsStore.imageQuality
-  localDefaultPageSize.value = settingsStore.defaultPageSize
-  localAutoProcess.value = settingsStore.autoProcessAi
-  localAiProvider.value = settingsStore.aiProvider
-  localApiKey.value = settingsStore.customApiKey
+  localLowStock.value = settingsStore.settings.lowStockThreshold ?? 3
+  localImageQuality.value = settingsStore.settings.imageQuality ?? 80
+  localDefaultPageSize.value = settingsStore.settings.defaultPageSize ?? 100
+  localAutoProcess.value = settingsStore.settings.autoProcessAi ?? false
+  localAiProvider.value = settingsStore.settings.aiProvider ?? 'gemini'
+  localApiKey.value = settingsStore.settings.customApiKey ?? ''
 }
 
 watch(
   () => [
-    settingsStore.lowStockThreshold,
-    settingsStore.imageQuality,
-    settingsStore.defaultPageSize,
-    settingsStore.autoProcessAi,
-    settingsStore.aiProvider,
-    settingsStore.customApiKey,
+    settingsStore.settings
   ],
   () => {
     syncLocalFromStore()

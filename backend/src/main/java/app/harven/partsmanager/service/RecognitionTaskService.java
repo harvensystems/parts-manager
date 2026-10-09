@@ -114,7 +114,7 @@ public class RecognitionTaskService {
         return taskRepository.findById(id)
                 .flatMap(task -> {
                     Mono<Void> deleteImg = task.getPhotoId() != null
-                            ? imageStorageService.optimizeImage(task.getPhotoId())
+                            ? imageStorageService.deleteImage(task.getPhotoId())
                             : Mono.empty();
                     return deleteImg.then(taskRepository.deleteById(id));
                 });
