@@ -31,7 +31,6 @@ public class PartService {
     private final PartRepository partRepository;
     private final ReactiveMongoTemplate mongoTemplate;
     private final DtoMapper dtoMapper;
-    private final Boolean enabledAi;
     private final AppSettingService appSettingService;
     private final ImageStorageService imageStorageService;
     private final RecognitionTaskRepository recognitionTaskRepository;
@@ -255,17 +254,20 @@ public class PartService {
             partRepository.getPackagesAndManufacturers().defaultIfEmpty(new PartDictionaries(List.of(), List.of(), List.of())),
             generateNextPartCode()
         )
-                .map(tuple -> {
-                    List<String> staticComponents = List.of("Resistor","Capacitor","IC","Transistor","Diode","LED","Inductor","Connector","Sensor","Module","Other");
-                    List<String> locations = tuple.getT2().getLocations() != null ? tuple.getT2().getLocations().stream().filter(Objects::nonNull).filter(s -> !s.isBlank()).toList() : List.of();
-                    return new DictionaryResponseDto(
-                            tuple.getT2().getManufacturers(),
-                            tuple.getT2().getPackages(),
-                            tuple.getT1().getParameters().stream().toList(),
-                            staticComponents,
-                            locations,
-                            tuple.getT3(),
-                            enabledAi);
+                .flatMap(tuple -> {
+                    return appSettingService.enabledAI()
+                            .map(enabledAi -> {
+                                List<String> staticComponents = List.of("Resistor", "Capacitor", "IC", "Transistor", "Diode", "LED", "Inductor", "Connector", "Sensor", "Module", "Other");
+                                List<String> locations = tuple.getT2().getLocations() != null ? tuple.getT2().getLocations().stream().filter(Objects::nonNull).filter(s -> !s.isBlank()).toList() : List.of();
+                                return new DictionaryResponseDto(
+                                        tuple.getT2().getManufacturers(),
+                                        tuple.getT2().getPackages(),
+                                        tuple.getT1().getParameters().stream().toList(),
+                                        staticComponents,
+                                        locations,
+                                        tuple.getT3(),
+                                        enabledAi);
+                            });
                 });
     }
 }

@@ -10,9 +10,11 @@ spring:
     google:
       genai:
         api-key: ${AI_API_KEY:mock-key}
-        chat:
-          options:
-            model: gemini-3.6-flash
+    openai:
+      api-key: ${AI_API_KEY:mock-key}
+
+  main:
+    allow-bean-definition-overriding: on
 
 server:
   port: 8080

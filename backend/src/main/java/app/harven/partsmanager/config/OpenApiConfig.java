@@ -19,9 +19,4 @@ public class OpenApiConfig {
                         .version("v1.0")
                         .license(new License().name("MIT").url("https://opensource.org/licenses/MIT")));
     }
-
-    @Bean
-    public boolean enabledAI(@Value("${spring.ai.google.genai.api-key:}") String aiApiKey) {
-        return aiApiKey != null && !aiApiKey.contains("mock") && !aiApiKey.trim().isEmpty();
-    }
 }

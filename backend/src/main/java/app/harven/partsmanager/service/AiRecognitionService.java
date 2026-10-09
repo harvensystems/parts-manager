@@ -8,6 +8,7 @@ import app.harven.partsmanager.domain.RecognitionTask;
 import app.harven.partsmanager.repository.RecognitionTaskRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -26,23 +27,23 @@ public class AiRecognitionService {
     private final RecognitionTaskRepository taskRepository;
     private final ImageStorageService imageStorageService;
     private final ObjectMapper objectMapper;
-    private final ChatClient.Builder chatClientBuilder;
-    private final Boolean enabledAi;
+    private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
+    private final AppSettingService appSettingService;
     private final PartService partService;
 
     @Autowired
     public AiRecognitionService(
             RecognitionTaskRepository taskRepository,
             ImageStorageService imageStorageService,
-            Boolean enabledAi,
+            AppSettingService appSettingService,
             PartService partService,
-            @Autowired(required = false) ChatClient.Builder chatClientBuilder
+            @Autowired(required = false) ObjectProvider<ChatClient.Builder> chatClientBuilderProvider
     ) {
         this.taskRepository = taskRepository;
         this.imageStorageService = imageStorageService;
         this.objectMapper = new ObjectMapper();
-        this.chatClientBuilder = chatClientBuilder;
-        this.enabledAi = enabledAi;
+        this.chatClientBuilderProvider = chatClientBuilderProvider;
+        this.appSettingService = appSettingService;
         this.partService = partService;
     }
 
@@ -54,35 +55,39 @@ public class AiRecognitionService {
                 })
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(task -> {
-                    long startTime = System.currentTimeMillis();
-                    Mono<?> execution;
-                    if (enabledAi && chatClientBuilder != null) {
-                        execution = processWithSpringAi(task);
-                    } else {
-                        execution = Mono.fromRunnable(() -> processSimulated(task));
-                    }
+                    return appSettingService.enabledAI()
+                            .flatMap(enabledAi -> {
+                                long startTime = System.currentTimeMillis();
+                                Mono<?> execution;
+                                ChatClient.Builder chatClientBuilder = chatClientBuilderProvider != null ? chatClientBuilderProvider.getIfAvailable() : null;
+                                if (enabledAi && chatClientBuilder != null) {
+                                    execution = processWithSpringAi(task, chatClientBuilder);
+                                } else {
+                                    execution = Mono.fromRunnable(() -> processSimulated(task));
+                                }
 
-                    return execution
-                            .then(Mono.defer(() -> {
-                                task.setStatus(RecognitionStatus.COMPLETED);
-                                return Mono.empty();
-                            }))
-                            .onErrorResume(e -> {
-                                log.error("AI recognition failed for task {}: {}", taskId, e.getMessage(), e);
-                                task.setStatus(RecognitionStatus.FAILED);
-                                task.setErrorMessage(e.getMessage() != null ? e.getMessage() : "Failed to process image with AI");
-                                return Mono.empty();
-                            })
-                            .then(Mono.defer(() -> {
-                                task.setProcessingTimeMs(System.currentTimeMillis() - startTime);
-                                task.setCompletedAt(Instant.now());
-                                return taskRepository.save(task);
-                            }));
+                                return execution
+                                        .then(Mono.defer(() -> {
+                                            task.setStatus(RecognitionStatus.COMPLETED);
+                                            return Mono.empty();
+                                        }))
+                                        .onErrorResume(e -> {
+                                            log.error("AI recognition failed for task {}: {}", taskId, e.getMessage(), e);
+                                            task.setStatus(RecognitionStatus.FAILED);
+                                            task.setErrorMessage(e.getMessage() != null ? e.getMessage() : "Failed to process image with AI");
+                                            return Mono.empty();
+                                        })
+                                        .then(Mono.defer(() -> {
+                                            task.setProcessingTimeMs(System.currentTimeMillis() - startTime);
+                                            task.setCompletedAt(Instant.now());
+                                            return taskRepository.save(task);
+                                        }));
+                            });
                 })
                 .subscribe();
     }
 
-    private Mono<Void> processWithSpringAi(RecognitionTask task) {
+    private Mono<Void> processWithSpringAi(RecognitionTask task, ChatClient.Builder chatClientBuilder) {
         return imageStorageService.getImageBytes(task.getPhotoId())
                 .switchIfEmpty(Mono.error(new IllegalStateException("Photo not found in GridFS: " + task.getPhotoId())))
                 .map(imageBytes -> imageStorageService.normalizeImage(imageBytes, 1024, 1024, 0.9f))

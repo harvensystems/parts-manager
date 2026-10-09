@@ -10,13 +10,6 @@ export const useSettingsStore = defineStore('settings', () => {
   const settings = ref<AppSettingDto>({})
   const t = i18n.global.t
 
-  const lowStockThreshold = ref(5)
-  const imageQuality = ref(80)
-  const defaultPageSize = ref(20)
-  const autoProcessAi = ref(true)
-  const aiProvider = ref('gemini')
-  const customApiKey = ref('')
-
   const isLoadingSettings = ref(false)
   const isSavingSettings = ref(false)
 
@@ -24,6 +17,7 @@ export const useSettingsStore = defineStore('settings', () => {
     isLoadingSettings.value = true
     try {
       settings.value = await api.settings.getSettings()
+      console.log(`fetchSettings`, JSON.stringify(settings.value))
     } catch (e) {
       uiStore.showToast("Could not load settings from backend")
     } finally {
@@ -44,12 +38,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return {
-    lowStockThreshold,
-    imageQuality,
-    defaultPageSize,
-    autoProcessAi,
-    aiProvider,
-    customApiKey,
+    settings,
     isLoadingSettings,
     isSavingSettings,
     fetchSettings,
